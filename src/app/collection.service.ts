@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
+import { environment } from 'src/environments/environment.prod';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,7 @@ export class CollectionService {
     quantity: number
   ): Observable<{ id: number }> {
     // Specify the expected response type
-    const url = `http://localhost:3000/api/collection/${collectionId}/add-plant`;
+    const url = `${environment.apiUrl}/collection/${collectionId}/add-plant`;
     const body = {
       plantId,
       scientific_name,

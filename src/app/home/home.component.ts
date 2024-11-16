@@ -2,6 +2,7 @@ import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-home',
@@ -12,7 +13,7 @@ export class HomeComponent {
   collections: any[] = []; // Variable to store collections
   listName = new FormControl('');
   isFormVisible = false;
-  collectionUrl = 'http://localhost:3000/api/collection'; // Adjust the backend URL as needed
+  collectionUrl = `${environment.apiUrl}/collection`; // Adjust the backend URL as needed
   @ViewChild('collectionInput') collectionInput!: ElementRef;
 
   constructor(private http: HttpClient, private router: Router) {}
