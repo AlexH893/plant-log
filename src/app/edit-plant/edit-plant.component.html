@@ -1,0 +1,10 @@
+<h3>Edit Plant: {{ selectedPlant?.common_name }}</h3>
+<input
+  #plantNameInput
+  class="custom-input"
+  matInput
+  placeholder="Edit Plant Name"
+/>
+<button class="clear" mat-raised-button color="warn" (click)="renamePlant()">
+  Confirm
+</button>

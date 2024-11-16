@@ -1,0 +1,48 @@
+<h2>Add Plants</h2>
+
+<mat-list role="list">
+  <h3>Current Plants</h3>
+  <mat-list-item role="listitem">Item 1</mat-list-item>
+  <mat-list-item role="listitem">Item 2</mat-list-item>
+  <mat-list-item role="listitem">Item 3</mat-list-item>
+</mat-list>
+<mat-divider></mat-divider>
+
+<form class="example-form">
+  <mat-form-field>
+    <input
+      matInput
+      placeholder="Search for a plant"
+      [formControl]="plantSearch"
+      [matAutocomplete]="auto"
+    />
+    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onPlantSelected($event)">
+      <mat-option *ngFor="let plant of filteredOptions | async" [value]="plant">
+        {{ plant }}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <div *ngIf="selectedPlants.length > 0">
+    <h3>Selected Plants</h3>
+    <div *ngFor="let plant of selectedPlants">
+      {{ plant.name }} - Quantity: {{ plant.quantity }}
+      <button mat-button (click)="adjustQuantity(plant.name, 1)">+</button>
+      <button mat-button (click)="adjustQuantity(plant.name, -1)">-</button>
+    </div>
+  </div>
+
+
+  <div class="button-container">
+  <button class="plant-btn" mat-button (click)="addPlant()">
+    <span class="button-background"></span>
+    <span class="button-border"></span>
+    <span class="button-text">Add Plants</span>
+  </button>
+</div>
+  <button class="clear" mat-raised-button color="warn" (click)="clearSelections()">
+    Clear Selections
+  </button>
+</form>
+<br><br>
+

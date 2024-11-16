@@ -1,0 +1,254 @@
+.selected-plants {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.selected-plants div {
+  background-color: #e0e0e0;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+.add,
+.remove {
+  height: 3vh;
+  width: 4vw;
+}
+.selected-plant-name {
+  font-size: 1.5em;
+}
+
+.add-plant-form {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 50vw;
+  padding: 20px;
+}
+.example-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.add-plant {
+  height: 6vh;
+  width: 100%; /* Full width */
+  background: linear-gradient(
+    135deg,
+    #9caf88,
+    #4f7a43
+  ); /* Sage to forest green gradient */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+  transition: all 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.add-plant:hover {
+  background: linear-gradient(
+    135deg,
+    #4f7a43,
+    #9caf88
+  ); /* Reverse gradient on hover */
+  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow */
+}
+
+.add-plant:active {
+  transform: translateY(2px); /* Pressed-down effect */
+}
+
+.clear {
+  position: relative;
+  height: 4vh;
+  width: 100%;
+  background-color: #a8d5ba;
+  color: #2f4f4f;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.clear:active {
+  transform: scale(0.95); /* Shrink effect on tap */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
+}
+
+*,
+::after,
+::before {
+  box-sizing: border-box;
+  border: 0 solid #e5e7eb;
+  --tw-border-spacing-x: 0;
+  --tw-border-spacing-y: 0;
+  --tw-translate-x: 0;
+  --tw-translate-y: 0;
+  --tw-rotate: 0;
+  --tw-skew-x: 0;
+  --tw-skew-y: 0;
+  --tw-scale-x: 1;
+  --tw-scale-y: 1;
+}
+
+.disabled {
+  cursor: default;
+}
+
+.invisible {
+  visibility: hidden;
+}
+
+.border {
+  border: 1px solid #000;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.h-40 {
+  height: 10rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.relative {
+  position: relative;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.inset-0 {
+  inset: 0;
+}
+
+.border-4 {
+  border-width: 4px;
+}
+
+.border-black {
+  border-color: rgba(0, 0, 0, 1);
+}
+
+.bg-red-300 {
+  background-color: rgba(252, 165, 165, 1);
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.transition {
+  transition-property: all;
+}
+
+.duration-300 {
+  transition-duration: 0.3s;
+}
+
+.ease-out {
+  transition-timing-function: ease-out;
+}
+
+.transform {
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
+    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
+    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+}
+
+.-translate-x-2 {
+  --tw-translate-x: -0.5rem;
+}
+
+.-translate-y-2 {
+  --tw-translate-y: -0.5rem;
+}
+
+.group:hover .group-hover-translate-x-0 {
+  --tw-translate-x: 0;
+}
+
+.group:hover .group-hover-translate-y-0 {
+  --tw-translate-y: 0;
+}
+
+/* Specific button styling */
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 10rem;
+  border: 1px solid #000;
+}
+
+.plant-btn {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  height: 5vh;
+  width: 15vw;
+  box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.2);
+
+  & .button-background {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgb(92, 148, 65);
+    transform: translate(-0.5rem, -0.5rem);
+    transition: transform 0.1s ease-out;
+  }
+
+  &:hover .button-background {
+    transform: translate(0, 0);
+  }
+
+  & .button-border {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid black;
+  }
+
+  & .button-text {
+    position: relative;
+  }
+}
+
+.plant-btn:active {
+  transform: scale(0.95); /* Shrink effect on tap */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
+}
