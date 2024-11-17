@@ -1,11 +1,11 @@
 const mysql = require("mysql2/promise");
 const express = require("express");
+const cors = require("cors");
 const app = express();
 require("dotenv").config({ path: "../db.env" });
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const path = require("path");
-const cors = require("cors");
 
 const db = mysql.createPool({
   host: "127.0.0.1",
