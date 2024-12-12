@@ -5,8 +5,8 @@
 /tmp
 /out-tsc
 /bazel-out
+/.angular
 .angular/
-
 
 # Node
 /node_modules
