@@ -1,29 +1,36 @@
 import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment.prod';
-
+import { NewsComponent } from '../news/news.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ModalService } from '../modal.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  collections: any[] = []; // Variable to store collections
+  collections: any[] = [];
   listName = new FormControl('');
   isFormVisible = false;
-  collectionUrl = `${environment.apiUrl}/collection`; // Adjust the backend URL as needed
+  collectionUrl = `${environment.apiUrl}/collection`;
   @ViewChild('collectionInput') collectionInput!: ElementRef;
+  isNewsModalVisible: boolean = false;
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    public dialog: MatDialog,
+    public modalService: ModalService
+  ) {}
 
   toggleForm() {
-    this.isFormVisible = !this.isFormVisible; // Toggle form visibility
+    this.isFormVisible = !this.isFormVisible;
     if (this.isFormVisible) {
       setTimeout(() => {
         this.collectionInput.nativeElement.focus();
-        // Ensure the element is visible to the viewport
         this.collectionInput.nativeElement.scrollIntoView({
           behavior: 'smooth',
         });
@@ -33,22 +40,21 @@ export class HomeComponent {
 
   createCollection() {
     const collectionName = this.listName.value;
-    if (collectionName) {
-      // Make HTTP POST request to create a new collection
+    const token = localStorage.getItem('authToken');
+
+    if (collectionName && token) {
+      const headers = {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      };
+
       this.http
-        .post(
-          this.collectionUrl,
-          { name: collectionName },
-          {
-            headers: { 'Content-Type': 'application/json' },
-          }
-        )
+        .post(this.collectionUrl, { name: collectionName }, { headers })
         .subscribe({
           next: (response: any) => {
-            console.log('Collection created successfully:', response);
-            this.listName.reset(); // Clear the input field
-            this.isFormVisible = false; // Hide the form
-            this.getCollection(); // Refresh collections after creation
+            this.listName.reset();
+            this.isFormVisible = false;
+            this.getCollection();
           },
           error: (error) => {
             console.error('Error creating collection:', error);
@@ -57,33 +63,62 @@ export class HomeComponent {
     }
   }
 
-  // Call getCollection when the page is loaded
   ngOnInit() {
     this.getCollection();
   }
 
-  // Method to navigate to the collection detail page
   goToCollection(collectionId: number) {
-    this.router.navigate(['/collection', collectionId]); // Navigate to the collection details page
+    this.router.navigate(['/collection', collectionId]);
   }
 
-  // Get collections from the backend
   getCollection() {
-    this.http.get<any[]>(this.collectionUrl).subscribe({
-      next: (response: any[]) => {
-        this.collections = response; // Store collections in the variable
-        console.log('Fetched collections:', this.collections);
-      },
-      error: (error) => {
-        console.error('Error fetching collections:', error);
-      },
-    });
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('No token found');
+      return;
+    }
+
+    this.http
+      .get<any[]>(this.collectionUrl, {
+        headers: new HttpHeaders({
+          Authorization: `Bearer ${token}`,
+        }),
+      })
+      .subscribe({
+        next: (response: any[]) => {
+          this.collections = response;
+        },
+        error: (error) => {
+          console.error('Error fetching collections:', error);
+        },
+      });
   }
 
   ngAfterViewInit(): void {
-    // Autofocus the input field when the modal opens
-    setTimeout(() => {
-      this.collectionInput.nativeElement.focus();
-    }, 0);
+    if (this.collectionInput) {
+      setTimeout(() => {
+        this.collectionInput.nativeElement.focus();
+        this.collectionInput.nativeElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }, 0);
+    } else {
+      console.warn('collectionInput ViewChild not available');
+    }
+  }
+
+  logout() {
+    localStorage.removeItem('authToken');
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
+  home() {
+    this.router.navigate(['/home']);
+  }
+
+  openNewsModal() {
+    console.log('CollectionComponent: Triggering openNewsModal...');
+    this.modalService.openNewsModal();
   }
 }

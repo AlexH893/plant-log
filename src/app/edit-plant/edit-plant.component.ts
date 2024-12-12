@@ -10,6 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CollectionComponent } from '../collection/collection.component';
 import { CollectionService } from '../collection.service';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: 'app-edit-plant',
@@ -54,7 +55,7 @@ export class EditPlantComponent implements OnInit {
 
     this.http
       .put(
-        `http://localhost:3000/api/collection/${collectionId}/plant/${plantId}/nickname`,
+        `${environment.apiUrl}/collection/${collectionId}/plant/${plantId}/nickname`,
         { nickname: newNickname }
       )
       .subscribe({

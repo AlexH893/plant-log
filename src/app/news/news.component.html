@@ -1,0 +1,24 @@
+<div *ngIf="isVisible" class="news-container">
+  <h1>Updates</h1>
+  <button class="close-btn" (click)="closeNewsModal()">&times;</button>
+
+  <!-- List of news items -->
+  <div
+    class="news-item"
+    *ngFor="let news of newsList"
+    (click)="openModal(news)"
+  >
+    <h2>{{ news.title }}</h2>
+    <p>{{ news.content | slice : 0 : 50 }}...</p>
+    <button class="read-more-btn">Read More</button>
+  </div>
+</div>
+
+<!-- News Modal -->
+<div *ngIf="selectedNews" class="news-modal">
+  <div class="modal-content">
+    <span class="close-btn" (click)="closeNewsInfo()">&times;</span>
+    <h2>{{ selectedNews.title }}</h2>
+    <p>{{ selectedNews.content }}</p>
+  </div>
+</div>

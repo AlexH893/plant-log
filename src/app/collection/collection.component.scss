@@ -30,41 +30,9 @@
   gap: 16px; /* Adjusts spacing between items */
 }
 
-.add-plant {
-  height: 6vh;
-  width: 100%; /* Full width */
-  background: linear-gradient(
-    135deg,
-    #9caf88,
-    #4f7a43
-  ); /* Sage to forest green gradient */
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.1em;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
-  transition: all 0.3s ease; /* Smooth transition for hover effect */
-}
-
-.add-plant:hover {
-  background: linear-gradient(
-    135deg,
-    #4f7a43,
-    #9caf88
-  ); /* Reverse gradient on hover */
-  box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow */
-}
-
-.add-plant:active {
-  transform: translateY(2px); /* Pressed-down effect */
-}
-
-.clear {
+.clear,
+.plant-btn {
   position: relative;
-  height: 4vh;
-  width: 100%;
   background-color: #a8d5ba;
   color: #2f4f4f;
   border: none;
@@ -81,21 +49,9 @@
   transform: scale(0.95); /* Shrink effect on tap */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
 }
-
-*,
-::after,
-::before {
-  box-sizing: border-box;
-  border: 0 solid #e5e7eb;
-  --tw-border-spacing-x: 0;
-  --tw-border-spacing-y: 0;
-  --tw-translate-x: 0;
-  --tw-translate-y: 0;
-  --tw-rotate: 0;
-  --tw-skew-x: 0;
-  --tw-skew-y: 0;
-  --tw-scale-x: 1;
-  --tw-scale-y: 1;
+.plant-btn:active {
+  transform: scale(0.95); /* Shrink effect on tap */
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
 }
 
 .disabled {
@@ -180,76 +136,19 @@
   transition-timing-function: ease-out;
 }
 
-.transform {
-  transform: translate(var(--tw-translate-x), var(--tw-translate-y))
-    rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y))
-    scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
-}
-
-.-translate-x-2 {
-  --tw-translate-x: -0.5rem;
-}
-
-.-translate-y-2 {
-  --tw-translate-y: -0.5rem;
-}
-
-.group:hover .group-hover-translate-x-0 {
-  --tw-translate-x: 0;
-}
-
-.group:hover .group-hover-translate-y-0 {
-  --tw-translate-y: 0;
-}
-
-/* Specific button styling */
-.button-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 10rem;
-}
-
 .plant-btn {
   position: relative;
   padding: 0.75rem 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  height: 8vh;
-  width: 25vw;
+  height: 9vh;
+  width: 35vw;
   box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.2);
-
-  & .button-background {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgb(92, 148, 65);
-    transform: translate(-0.5rem, -0.5rem);
-    transition: transform 0.1s ease-out;
-  }
-
-  &:hover .button-background {
-    transform: translate(0, 0);
-  }
-
-  & .button-border {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    border: 4px solid black;
-  }
+  margin-right: 5vw;
 
   & .button-text {
     position: relative;
   }
-}
-
-.plant-btn:active {
-  transform: scale(0.95); /* Shrink effect on tap */
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
 }
 
 .water-btn,
@@ -258,7 +157,7 @@
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow */
 }
 .water-btn {
-  height: 7vh;
+  height: 9vh;
   width: 20vw;
   // margin-bottom: 1em;
   border: 2px solid #011d85;
@@ -314,14 +213,49 @@ table {
   opacity: 0.8;
 }
 .custom-input {
-  height: 7vh;
-  width: 45vw;
+
   border-bottom: 1px solid #000;
   margin-bottom: 2em;
 }
 .plant-count {
   margin-top: -1em;
+  margin-bottom: 1em;
 }
 .clear {
-  height: 8vh;
+  height: 11vh;
+  height: 9vh;
+}
+.clear:hover {
+  background-color: #8a6054; /* Change background color on hover */
+  color: #fff; /* Change text color on hover */
+  transform: scale(1.05); /* Slightly enlarge the button */
+}
+
+.collection-name {
+  padding-top: 2vh;
+}
+.filter-input {
+  margin-top: 1em;
+}
+
+.toolbar-btn {
+  cursor: pointer;
+  border: 0;
+  margin: 8px;
+  padding: 8px;
+  border-radius: 3px;
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.8);
+  background: #333;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+}
+.toolbar {
+  position: absolute;
+  right: 5vw;
+}
+.btns {
+  display: flex;
+  justify-content: center;
 }

@@ -1,9 +1,12 @@
 import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormControl } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { CollectionService } from '../collection.service';
+import { Router } from '@angular/router';
+import { NewsComponent } from '../news/news.component';
+import { ModalService } from '../modal.service';
 import {
   debounceTime,
   map,
@@ -18,6 +21,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPlantComponent } from '../edit-plant/edit-plant.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from 'src/environments/environment.prod';
 
 interface Plant {
   scientific_name: string;
@@ -49,6 +53,52 @@ interface PlantIdResponse {
   encapsulation: ViewEncapsulation.None,
 })
 export class CollectionComponent implements OnInit {
+  addCustomPlant(): void {
+    const customInput = (this.customPlantInput.value || '').trim();
+
+    // Prevent adding empty or duplicate plants
+    if (!customInput) {
+      this.showToast('Please enter a plant name.');
+      return;
+    }
+
+    if (
+      this.selectedPlants.some(
+        (plant) =>
+          plant.scientific_name.toLowerCase() === customInput.toLowerCase()
+      )
+    ) {
+      this.showToast('This plant is already selected.');
+      this.customPlantInput.setValue(''); // Clear input
+      return;
+    }
+
+    // Add the custom plant
+    this.selectedPlants.push({
+      scientific_name: customInput,
+      common_name: customInput, // Use the same value for both if no distinction
+      quantity: 1,
+      water: 'Water',
+      last_watered: 'Today', // Default value
+      watered: false,
+      id: this.nextPlantId++, // Generate a new ID
+    });
+
+    // Clear the input field
+    this.customPlantInput.setValue('');
+    this.showToast('Custom plant added.');
+  }
+
+  home() {
+    this.router.navigate(['/home']);
+  }
+  logout() {
+    // Clear the token from localStorage
+    localStorage.removeItem('authToken');
+    sessionStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
   displayedColumns: string[] = ['name', 'last_watered', 'water', 'actions'];
   dataSource = new MatTableDataSource<Plant>(ELEMENT_DATA);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -58,23 +108,27 @@ export class CollectionComponent implements OnInit {
   nextPlantId: number = 1;
 
   plantSearch = new FormControl('');
+  customPlantInput = new FormControl('');
   plants = new FormControl('');
 
   selectedPlants: Plant[] = [];
   filteredOptions!: Observable<string[]>;
   selectedPlant: any;
-  plantIdApiUrl = 'http://localhost:3000/api/plants';
+  plantIdApiUrl = `${environment.apiUrl}/plants`;
 
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
     private collectionService: CollectionService,
     public dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private router: Router,
+    private modalService: ModalService
   ) {
     this.collectionId = 1;
   }
 
+  // Water plant - send current timestamp
   waterPlant(plant: Plant): void {
     console.log('Collection ID:', this.collectionId);
     console.log('Plant ID:', plant.id);
@@ -84,7 +138,7 @@ export class CollectionComponent implements OnInit {
       return;
     }
 
-    const url = `http://localhost:3000/api/collection/${this.collectionId}/plant/${plant.id}`;
+    const url = `${environment.apiUrl}/collection/${this.collectionId}/plant/${plant.id}`;
 
     this.http.put(url, {}).subscribe(
       (response: any) => {
@@ -98,11 +152,18 @@ export class CollectionComponent implements OnInit {
     );
   }
 
+  // TODO
   undoWaterPlant(plant: Plant): void {
     console.log(`${plant.scientific_name} watering has been reverted!`);
     plant.watered = false;
   }
 
+  /** ngOnInit
+      Lifecycle hook to subscribe to route parameters
+      Listens to refresh collection observable to refresh plant list whenever
+      collection is refreshed.
+      Also sets up reactive form control for plantSearch with debounced
+  */
   ngOnInit() {
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
@@ -207,7 +268,7 @@ export class CollectionComponent implements OnInit {
     }
 
     this.http
-      .get<any>(`http://localhost:3000/api/collection/${this.collectionId}`)
+      .get<any>(`${environment.apiUrl}/collection/${this.collectionId}`)
       .subscribe(
         (data) => {
           this.collection = data;
@@ -219,7 +280,7 @@ export class CollectionComponent implements OnInit {
   }
 
   getCollectionPlants() {
-    const url = `http://localhost:3000/api/collection/${this.collectionId}/plants`;
+    const url = `${environment.apiUrl}/collection/${this.collectionId}/plants`;
 
     this.http.get<{ success: boolean; plants: Plant[] }>(url).subscribe(
       (response) => {
@@ -263,7 +324,7 @@ export class CollectionComponent implements OnInit {
     // Send PUT request to backend to soft delete the plant
     this.http
       .put(
-        `http://localhost:3000/api/collection/${this.collectionId}/plant/${plantId}/delete`,
+        `${environment.apiUrl}/collection/${this.collectionId}/plant/${plantId}/delete`,
         {}
       )
       .subscribe({
@@ -307,50 +368,71 @@ export class CollectionComponent implements OnInit {
     }, 3000);
   }
 
-  addPlant(collectionId: number) {
+  // addPlant(collectionId: number) {
+  //   if (this.selectedPlants.length === 0) {
+  //     this.showToast('Please select a plant to add.');
+  //     return;
+  //   }
+
+  //   const selectedPlant = this.selectedPlants[0];
+
+  //   if (selectedPlant) {
+  //     const { scientific_name, common_name, quantity } = selectedPlant;
+
+  //     this.collectionService
+  //       .addPlantToCollection(
+  //         collectionId,
+  //         this.nextPlantId++,
+  //         scientific_name,
+  //         common_name,
+  //         quantity
+  //       )
+  //       .subscribe(
+  //         (response) => {
+  //           console.log('Plant added to collection', response);
+  //           this.selectedPlants = [];
+  //           this.getCollectionPlants();
+  //           this.showToast('Plant added successfully.');
+  //         },
+  //         (error) => {
+  //           console.error('Error adding plant to collection:', error);
+  //           this.showToast('Error adding plant to collection.');
+  //         }
+  //       );
+  //   }
+  // }
+
+  openNewsModal() {
+    console.log('CollectionComponent: Triggering openNewsModal...');
+    this.modalService.openNewsModal();
+  }
+
+  addPlants(collectionId: number) {
     if (this.selectedPlants.length === 0) {
-      this.showToast('Please select a plant to add.');
+      this.showToast('Please select plants to add.');
       return;
     }
 
-    const selectedPlant = this.selectedPlants[0];
+    const plantsToAdd = this.selectedPlants.map((plant) => ({
+      scientific_name: plant.scientific_name,
+      common_name: plant.common_name,
+      quantity: plant.quantity,
+      last_watered: plant.last_watered || null,
+    }));
 
-    if (selectedPlant) {
-      const { scientific_name, common_name, quantity } = selectedPlant;
-
-      this.collectionService
-        .addPlantToCollection(
-          collectionId,
-          this.nextPlantId++, // Temporary ID before getting a real one
-          scientific_name,
-          common_name,
-          quantity
-        )
-        .subscribe(
-          (response) => {
-            console.log('Plant added to collection:', response);
-            // Refresh the plant list
-            this.getCollectionPlants();
-            this.showToast('Plant added successfully!');
-            const newPlant: Plant = {
-              ...selectedPlant,
-              id: response.id, // Use the real ID from the response
-              collectionId: this.collectionId,
-              watered: false,
-              last_watered: 'Never',
-            };
-
-            this.dataSource.data = [...this.dataSource.data, newPlant];
-
-            this.plantCount = this.dataSource.data.length;
-            this.showToast('Plant added successfully!');
-            this.clearSelections();
-          },
-          (error) => {
-            console.error('Error adding plant to collection:', error);
-            this.showToast(`Error: ${error.error}`);
-          }
-        );
-    }
+    this.collectionService
+      .addPlantsToCollection(collectionId, plantsToAdd)
+      .subscribe(
+        (response) => {
+          console.log('Plants added to collection', response);
+          this.selectedPlants = [];
+          this.getCollectionPlants();
+          this.showToast('Plants added successfully.');
+        },
+        (error) => {
+          console.error('Error adding plants to collection:', error);
+          this.showToast('Error adding plants to collection.');
+        }
+      );
   }
 }

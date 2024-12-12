@@ -1,0 +1,58 @@
+<form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="form">
+  <div class="title">
+    Welcome,<br /><span>login to continue</span><br />
+    <p>or <span class="link-text" (click)="goToSignup()">Signup</span></p>
+  </div>
+
+  <!-- Username Field -->
+
+  <input
+    class="input"
+    id="username"
+    type="text"
+    formControlName="username"
+    #usernameInput
+    placeholder="username"
+  />
+  <div
+    *ngIf="
+      loginForm.get('username')?.invalid && loginForm.get('username')?.touched
+    "
+  >
+    <small *ngIf="loginForm.get('username')?.errors?.['required']"
+      >Username is required.</small
+    >
+    <small *ngIf="loginForm.get('username')?.errors?.['maxlength']"
+      >Username must not exceed 30 characters.</small
+    >
+  </div>
+
+  <!-- Password Field -->
+  <div>
+    <input
+      class="input"
+      id="password"
+      type="password"
+      formControlName="password"
+      type="password"
+      placeholder="password"
+    />
+    <div
+      *ngIf="
+        loginForm.get('password')?.invalid && loginForm.get('password')?.touched
+      "
+    >
+      <small *ngIf="loginForm.get('password')?.errors?.['required']"
+        >Password is required.</small
+      >
+      <small *ngIf="loginForm.get('password')?.errors?.['minlength']"
+        >Password must be at least 6 characters.</small
+      >
+    </div>
+  </div>
+
+  <!-- Submit Button -->
+  <button type="submit" [disabled]="loginForm.invalid" class="button-confirm">
+    Login →
+  </button>
+</form>

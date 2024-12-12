@@ -14,7 +14,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { FormsModule } from '@angular/forms';
 import { MatListModule } from '@angular/material/list';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatOptionModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { CollectionComponent } from './collection/collection.component';
@@ -25,6 +25,10 @@ import { PlantComponent } from './plant/plant.component';
 import { EditPlantComponent } from './edit-plant/edit-plant.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AuthComponent } from './auth/auth.component';
+import { SignupComponent } from './signup/signup.component';
+import { AuthInterceptor } from './auth.interceptor';
+import { NewsComponent } from './news/news.component';
 
 @NgModule({
   declarations: [
@@ -34,6 +38,9 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     CollectionComponent,
     PlantComponent,
     EditPlantComponent,
+    AuthComponent,
+    SignupComponent,
+    NewsComponent,
   ],
   imports: [
     BrowserModule,
@@ -56,7 +63,13 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatDialogModule,
     MatSnackBarModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

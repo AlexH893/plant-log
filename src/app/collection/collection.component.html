@@ -1,24 +1,26 @@
 <div *ngIf="collection">
-  <h2>{{ collection.name }}</h2>
+  <h2 class="collection-name">{{ collection.name }}</h2>
   <div class="plant-count">{{ plantCount }} plants</div>
-  <!-- <p>Collection contains: x plants -->
-
   <!-- <p>Created on: {{ collection.date_created | date }}</p> -->
-  <!-- Add more details about the collection here -->
 </div>
 <mat-divider></mat-divider>
 <div id="toast" class="toast">Plant added successfully!</div>
 
 <!-- Table of plants-->
-<mat-form-field>
+<mat-form-field class="filter-input">
   <mat-label>Filter</mat-label>
-  <input matInput (keyup)="applyFilter($event)" placeholder="Ex. ium" #input />
+  <input
+    matInput
+    (keyup)="applyFilter($event)"
+    placeholder="Ex. Snake Plant"
+    #input
+  />
 </mat-form-field>
 <div class="table-container">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef style="width: 30vw">Name</th>
+      <th mat-header-cell *matHeaderCellDef style="width: 25vw">Name</th>
       <td mat-cell *matCellDef="let plant" style="height: 12vh">
         {{ plant.nickname || plant.common_name }}
       </td>
@@ -37,10 +39,14 @@
       <th mat-header-cell *matHeaderCellDef style="width: 18w">Water</th>
       <td mat-cell *matCellDef="let element" style="width: 18vw">
         <button class="water-btn" mat-button (click)="waterPlant(element)">
+          <!-- Conditional Text -->
           {{ element.watered ? "Watered" : "Water" }}
-          <!-- Conditional text change -->
-        </button>
 
+          <!-- Conditional Icon Change -->
+          <span class="material-icons">
+            {{ element.watered ? "check_circle" : "water_drop" }}
+          </span>
+        </button>
       </td>
     </ng-container>
 
@@ -48,9 +54,9 @@
     <ng-container matColumnDef="actions">
       <th mat-header-cell *matHeaderCellDef></th>
       <td mat-cell *matCellDef="let plant">
-        <button mat-icon-button [matMenuTriggerFor]="menu">
-          <mat-icon>more_vert</mat-icon>
-        </button>
+        <span [matMenuTriggerFor]="menu">
+          <span class="material-icons"> more_vert </span>
+        </span>
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="editPlant(plant)">
             <mat-icon>edit</mat-icon>
@@ -81,6 +87,7 @@
 <h2>Add Plants</h2>
 
 <mat-divider></mat-divider>
+<br />
 
 <form class="example-form">
   <mat-form-field>
@@ -99,16 +106,22 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-  <input
-    class="custom-input"
-    matInput
-    placeholder="Or add your own"
-    [formControl]="plantSearch"
-    [matAutocomplete]="auto"
-  />
+  <!-- Custom plant input -->
+  <mat-form-field>
+    <input
+      class="custom-input"
+      matInput
+      placeholder="Or add your own"
+      [formControl]="customPlantInput"
+      (keyup.enter)="addCustomPlant()"
+    />
+    <button mat-icon-button matSuffix (click)="addCustomPlant()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </mat-form-field>
 
   <div *ngIf="selectedPlants.length > 0">
-    <h3>Selected Plants</h3>
+    <h3>Selected Plants to be added</h3>
     <div *ngFor="let plant of selectedPlants">
       {{ plant.scientific_name }} - Quantity: {{ plant.quantity }}
       <button mat-button (click)="adjustQuantity(plant.scientific_name, 1)">
@@ -119,21 +132,36 @@
       </button>
     </div>
   </div>
-  <div class="button-container">
-    <button class="plant-btn" mat-button (click)="addPlant(collectionId)">
-      <span class="button-background"></span>
-      <span class="button-border"></span>
-      <span class="button-text">Add Plant</span>
+  <div class="btns">
+    <button
+      class="plant-btn"
+      mat-raised-button
+      (click)="addPlants(collectionId)"
+    >
+      Add Plants
+      <span class="material-icons"> add </span>
+    </button>
+
+    <button
+      class="clear"
+      mat-raised-button
+      color="warn"
+      (click)="clearSelections()"
+    >
+      Clear Selections
+      <span class="material-icons"> clear </span>
     </button>
   </div>
-
-  <button
-    class="clear"
-    mat-raised-button
-    color="warn"
-    (click)="clearSelections()"
-  >
-    Clear Selections
-  </button>
 </form>
 <br /><br />
+<div class="toolbar">
+  <button (click)="openNewsModal()" class="toolbar-btn">
+    <span class="material-icons"> campaign </span>
+  </button>
+  <button (click)="home()" class="toolbar-btn">
+    <span class="material-icons"> home </span>
+  </button>
+  <button (click)="logout()" class="toolbar-btn">
+    <span class="material-icons"> logout </span>
+  </button>
+</div>

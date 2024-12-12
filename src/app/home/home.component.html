@@ -1,3 +1,4 @@
+<div class="form">
 <h2>Plant Log</h2>
 
 <div class="container">
@@ -40,8 +41,21 @@
     </ul>
   </div>
 
+
   <!-- Message if no collections exist -->
   <div *ngIf="collections.length === 0">
     <p>No collections available. Create a collection to add plants.</p>
   </div>
+</div>
+<div class="toolbar">
+  <button (click)="openNewsModal()">
+    <span class="material-icons"> campaign </span>
+  </button>
+  <button (click)="home()">
+    <span class="material-icons"> home </span>
+  </button>
+  <button (click)="logout()">
+    <span class="material-icons"> logout </span>
+  </button>
+</div>
 </div>

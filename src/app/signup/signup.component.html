@@ -1,0 +1,76 @@
+<form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="form">
+  <div class="title">
+    Welcome,<br /><span>sign up to continue</span><br />
+    <p>or <span class="link-text" (click)="goToAuth()">Login</span></p>
+  </div>
+  <!-- Username Field -->
+  <input
+    placeholder="username"
+    class="input"
+    id="username"
+    type="text"
+    formControlName="username"
+    #usernameInput
+  />
+  <div
+    *ngIf="
+      signupForm.get('username')?.invalid && signupForm.get('username')?.touched
+    "
+  >
+    <small *ngIf="signupForm.get('username')?.errors?.['required']"
+      >Username is required.</small
+    >
+    <small *ngIf="signupForm.get('username')?.errors?.['maxlength']"
+      >Username must not exceed 30 characters.</small
+    >
+  </div>
+
+  <!-- Password Field -->
+
+  <input
+    id="password"
+    type="password"
+    formControlName="password"
+    class="input"
+    placeholder="password"
+  />
+  <div
+    *ngIf="
+      signupForm.get('password')?.invalid && signupForm.get('password')?.touched
+    "
+  >
+    <small *ngIf="signupForm.get('password')?.errors?.['required']"
+      >Password is required.</small
+    >
+    <small *ngIf="signupForm.get('password')?.errors?.['minlength']"
+      >Password must be at least 6 characters.</small
+    >
+  </div>
+
+  <!-- Confirm Password Field -->
+  <input
+    id="confirmPassword"
+    type="password"
+    formControlName="confirmPassword"
+    class="input"
+    placeholder="confirm password"
+  />
+  <div
+    *ngIf="
+      signupForm.get('confirmPassword')?.invalid &&
+      signupForm.get('confirmPassword')?.touched
+    "
+  >
+    <small *ngIf="signupForm.get('confirmPassword')?.errors?.['required']"
+      >Confirm password is required.</small
+    >
+  </div>
+  <div *ngIf="signupForm.errors?.['passwordsMismatch']">
+    <small>Passwords do not match.</small>
+  </div>
+
+  <!-- Submit Button -->
+  <button class="button-confirm" type="submit" [disabled]="signupForm.invalid">
+    Let's go →
+  </button>
+</form>

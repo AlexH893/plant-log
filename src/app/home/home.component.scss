@@ -1,3 +1,4 @@
+/* General Styles */
 button {
   cursor: pointer;
   border: 0;
@@ -17,6 +18,7 @@ span {
   position: relative;
   z-index: 1;
 }
+
 span::after {
   content: "";
   position: absolute;
@@ -33,6 +35,7 @@ span::after {
 button:focus:not(:active) span::after {
   animation: circleGrow 0.3s linear;
 }
+
 @keyframes circleGrow {
   0% {
     transform: scale(0);
@@ -46,6 +49,7 @@ button:focus:not(:active) span::after {
     opacity: 0;
   }
 }
+
 .create-collection {
   background: #41a85f;
   width: 20vw;
@@ -59,13 +63,15 @@ button:focus:not(:active) span::after {
   border: 1px solid #ccc;
   border-radius: 8px;
   padding: 1rem;
-  width: 30vw;
   height: 12vh;
-  margin-bottom: 2rem;
   transition: all 0.3s ease;
   background-color: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .collection-name {
@@ -78,16 +84,18 @@ button:focus:not(:active) span::after {
 
 .container {
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   align-items: center;
   text-align: center;
 }
+
 h2,
 .create-collection,
 .list-form,
 .collection-list {
   text-align: center; /* Centers text inside elements */
 }
+
 h2 {
   margin-top: 2vh;
 }
@@ -95,4 +103,82 @@ h2 {
 h3 {
   font-size: 1.2em;
   margin-left: 2em;
+}
+
+.toolbar {
+  position: absolute;
+  right: 5vw;
+  bottom: 10vh;
+}
+
+/* Collection List Styles with Grid Layout */
+.collection-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Create 3 equal columns */
+  gap: 2rem; /* Space between grid items */
+  padding: 1rem;
+  justify-items: center; /* Centers items within each grid cell */
+  width: 100%; /* Ensure collection list takes full width */
+}
+
+.collection-item {
+  width: 100%;
+}
+
+/* Media Queries for Responsive Layout */
+@media (max-width: 768px) {
+  .collection-list {
+    grid-template-columns: repeat(
+      2,
+      1fr
+    ); /* 2 items per row on medium screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .collection-list {
+    grid-template-columns: 1fr; /* 1 item per row on small screens */
+  }
+}
+
+.form {
+  --input-focus: #2d8cf0;
+  --font-color: #323232;
+  --font-color-sub: #666;
+  --bg-color: #fff;
+  --main-color: #323232;
+  padding: 20px;
+  background: lightgrey;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  border-radius: 5px;
+  border: 2px solid var(--main-color);
+  box-shadow: 4px 4px var(--main-color);
+  width: 50%;
+  margin-top: 5vh;
+  margin-left: 20vw;
+
+}
+
+
+/* iPhone XR, 11 (6.1-inch screen) */
+@media only screen
+  and (min-device-width: 414px)
+  and (max-device-width: 896px)
+  and (-webkit-min-device-pixel-ratio: 2) {
+
+    .form {
+      margin: auto;
+      width: 80vw;
+      margin-top: 5vh;
+    }
+
+    .toolbar {
+      position: absolute;
+      right: 5vw;
+      bottom: 10vh;
+    }
 }

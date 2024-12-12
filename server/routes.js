@@ -1,11 +1,16 @@
 const express = require("express");
 const axios = require("axios");
-const { db } = require("./app");
+const db = require("./app");
 
 const router = express.Router();
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
 const PLANT_ID_API_URL = "https://plant.id/api/v3/kb/plants/name_search";
 const API_KEY = "LkRMANX6QnypQ4JbiHoGbnuW0dmigllDPnf3WeBs2RJvAqYYAL";
+require("dotenv").config();
+
+const authenticateToken = require("../src/authenticateToken.js");
 
 // GET Route to search for plants by name
 router.get("/plants", async (req, res) => {
@@ -29,22 +34,20 @@ router.get("/plants", async (req, res) => {
   }
 });
 
-// GET all collections
-router.get("/collection", async (req, res) => {
-  const { name } = req.query;
-  let query = "SELECT * FROM plant_collection WHERE active = 1";
-
-  if (name) {
-    query += " AND name LIKE ?";
-  }
+// GET all collections for authed user
+router.get("/collection", authenticateToken, async (req, res) => {
+  const userId = req.user.userId;
 
   try {
-    const [results] = await db.query(query, name ? [`%${name}%`] : []);
-    // Return the collections as the response
+    const query =
+      "SELECT * FROM plant_collection WHERE user_id = ? AND active = 1";
+    const [results] = await db.query(query, [userId]);
     res.status(200).json(results);
   } catch (err) {
     console.error("Error fetching collections:", err);
-    res.status(500).send(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching collections." });
   }
 });
 
@@ -220,17 +223,30 @@ router.put(
 );
 
 // POST Create a new collection
-router.post("/collection", async (req, res) => {
+router.post("/collection", authenticateToken, async (req, res) => {
   const { name } = req.body;
-  const query = "INSERT INTO plant_collection (name) VALUES (?)";
+  const userId = req.user.userId; // Corrected to use 'userId' instead of 'id'
+
+  console.log("Received request to create collection:");
+  console.log("Name:", name);
+  console.log("User ID:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is missing" });
+  }
+
+  const query = "INSERT INTO plant_collection (name, user_id) VALUES (?, ?)";
 
   try {
-    const [results] = await db.query(query, [name]);
+    const [results] = await db.query(query, [name, userId]);
+    console.log("Collection inserted with ID:", results.insertId);
+
     res.status(201).json({
       id: results.insertId,
       name: name,
       date_created: new Date(),
       active: 1,
+      user_id: userId, // Return the user ID for confirmation
     });
   } catch (err) {
     console.error("Error inserting collection:", err);
@@ -239,58 +255,154 @@ router.post("/collection", async (req, res) => {
 });
 
 // POST Add a plant to a collection
-router.post("/collection/:id/add-plant", async (req, res) => {
-  console.log("Reached /collection/:id/add-plant route");
+// router.post("/collection/:id/add-plant", async (req, res) => {
+//   console.log("Reached /collection/:id/add-plant route");
 
-  const collectionId = req.params.id;
-  const {
-    scientific_name,
-    common_name,
-    nickname,
-    quantity,
-    last_watered,
-    deleted,
-    is_custom,
-  } = req.body;
+//   const collectionId = req.params.id;
+//   const {
+//     scientific_name,
+//     common_name,
+//     nickname,
+//     quantity,
+//     last_watered,
+//     deleted,
+//     is_custom,
+//   } = req.body;
 
+//   try {
+//     // Insert the plant into the plant table with NOW() for date_added
+//     const [plantResult] = await db.query(
+//       "INSERT INTO plant (scientific_name, common_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, NOW(), 0, 0)",
+//       [
+//         scientific_name,
+//         common_name,
+//         nickname,
+//         quantity,
+//         last_watered,
+//         deleted,
+//         is_custom,
+//       ]
+//     );
+//     // Retrieve the newly inserted plantId
+//     const plantId = plantResult.insertId;
+
+//     // Now insert the plant into the collection_plants table with NOW() for date_added
+//     await db.query(
+//       "INSERT INTO collection_plants (collection_id, plant_id, common_name, scientific_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 0, 0)",
+//       [
+//         collectionId,
+//         plantId, // Use the plantId retrieved from the plant table
+//         common_name,
+//         scientific_name,
+//         nickname,
+//         quantity,
+//         deleted,
+//         is_custom,
+//       ]
+//     );
+
+//     res.json({ success: true, plantId });
+//   } catch (error) {
+//     console.error("Error adding plant to collection:", error);
+//     res.status(500).json({ error: "Error adding plant to collection" });
+//   }
+// });
+
+router.post("/collection/:collectionId/plants/add", async (req, res) => {
+  const { collectionId } = req.params;
+  const { plants } = req.body;
+
+  if (!Array.isArray(plants) || plants.length === 0) {
+    return res
+      .status(400)
+      .json({ message: "Plants data must be a non-empty array." });
+  }
+
+  let connection;
   try {
-    // Insert the plant into the plant table with NOW() for date_added
-    const [plantResult] = await db.query(
-      "INSERT INTO plant (scientific_name, common_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, NOW(), 0, 0)",
-      [
-        scientific_name,
-        common_name,
-        nickname,
-        quantity,
-        last_watered,
-        deleted,
-        is_custom,
-      ]
-    );
-    // Retrieve the newly inserted plantId
-    const plantId = plantResult.insertId;
+    connection = await db.getConnection();
+    await connection.beginTransaction();
 
-    // Now insert the plant into the collection_plants table with NOW() for date_added
-    await db.query(
-      "INSERT INTO collection_plants (collection_id, plant_id, common_name, scientific_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 0, 0)",
-      [
-        collectionId,
-        plantId, // Use the plantId retrieved from the plant table
-        common_name,
-        scientific_name,
-        nickname,
-        quantity,
-        deleted,
-        is_custom,
-      ]
+    const addedPlants = await Promise.all(
+      plants.map(async (plant) => {
+        const {
+          scientific_name,
+          common_name,
+          nickname,
+          quantity,
+          last_watered,
+        } = plant;
+
+        // Handle "Today" or missing last_watered
+        const safeLastWatered =
+          last_watered === "Today"
+            ? new Date().toISOString().split("T")[0]
+            : last_watered || null;
+
+        console.log("Inserting plant:", {
+          common_name,
+          scientific_name,
+          nickname,
+          quantity,
+          safeLastWatered,
+        });
+
+        // Insert into plant table
+        const [result] = await connection.execute(
+          `
+          INSERT INTO plant (common_name, scientific_name, nickname, quantity, last_watered, date_added, deleted, is_custom)
+          VALUES (?, ?, ?, ?, ?, NOW(), 0, 0)
+          `,
+          [
+            common_name,
+            scientific_name || null,
+            nickname || null,
+            quantity,
+            safeLastWatered,
+          ]
+        );
+
+        const plantId = result.insertId;
+
+        await connection.execute(
+          `
+          INSERT INTO collection_plants (common_name, scientific_name, collection_id, plant_id, quantity, date_added, deleted)
+          VALUES (?, ?, ?, ?, ?, NOW(), 0)
+          `,
+          [common_name, scientific_name, collectionId, plantId, quantity]
+        );
+
+        return {
+          id: plantId,
+          common_name,
+          scientific_name,
+          nickname,
+          quantity,
+          last_watered: safeLastWatered,
+        };
+      })
     );
 
-    res.json({ success: true, plantId });
+    await connection.commit();
+    res.status(201).json({ success: true, plants: addedPlants });
   } catch (error) {
-    console.error("Error adding plant to collection:", error);
-    res.status(500).json({ error: "Error adding plant to collection" });
+    if (connection) {
+      await connection.rollback();
+    }
+    console.error("Error adding plants:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to add plants.",
+    });
+  } finally {
+    if (connection) {
+      connection.release();
+    }
   }
 });
+
+// LOOKUP MISSING FIELDS IN DB IN COLLECTION_PLANTS
+// TO ADD THEM INTO POST CALL
 
 // POST Add a CUSTOM plant to a collection
 router.post("/collection/:id/add-custom-plant", async (req, res) => {
@@ -343,6 +455,88 @@ router.post("/collection/:id/add-custom-plant", async (req, res) => {
   } catch (error) {
     console.error("Error adding plant to collection:", error);
     res.status(500).json({ error: "Error adding plant to collection" });
+  }
+});
+
+// Signup route
+router.post("/signup", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required." });
+  }
+
+  try {
+    // Check if username already exists
+    const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [
+      username,
+    ]);
+    if (rows.length > 0) {
+      return res.status(400).json({ error: "Username already exists." });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new user into the database
+    const [result] = await db.query(
+      "INSERT INTO users (username, password, date_created) VALUES (?, ?, NOW())",
+      [username, hashedPassword]
+    );
+
+    res
+      .status(201)
+      .json({ message: "User created successfully!", userId: result.insertId });
+  } catch (err) {
+    console.error(err);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the user." });
+  }
+});
+
+// Login route
+router.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res
+      .status(400)
+      .json({ error: "Username and password are required." });
+  }
+
+  try {
+    // Check if the username exists
+    const [rows] = await db.query("SELECT * FROM users WHERE username = ?", [
+      username,
+    ]);
+
+    if (rows.length === 0) {
+      return res.status(401).json({ error: "Invalid credentials." });
+    }
+
+    const user = rows[0];
+
+    // Compare the hashed password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ error: "Invalid credentials." });
+    }
+
+    // Generate a JWT token
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "30m" }
+    );
+
+    // Return the token and optionally user info
+    res.json({ message: "Login successful!", token });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ error: "An error occurred during login." });
   }
 });
 
