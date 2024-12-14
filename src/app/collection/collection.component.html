@@ -107,6 +107,7 @@
     </mat-autocomplete>
   </mat-form-field>
   <!-- Custom plant input -->
+  <div class="input-with-button">
   <mat-form-field>
     <input
       class="custom-input"
@@ -115,11 +116,12 @@
       [formControl]="customPlantInput"
       (keyup.enter)="addCustomPlant()"
     />
+
+  </mat-form-field>
     <button mat-icon-button matSuffix (click)="addCustomPlant()">
       <mat-icon>add</mat-icon>
     </button>
-  </mat-form-field>
-
+    </div>
   <div *ngIf="selectedPlants.length > 0">
     <h3>Selected Plants to be added</h3>
     <div *ngFor="let plant of selectedPlants">
@@ -138,7 +140,7 @@
       mat-raised-button
       (click)="addPlants(collectionId)"
     >
-      Add Plants
+      Add 
       <span class="material-icons"> add </span>
     </button>
 
@@ -148,7 +150,7 @@
       color="warn"
       (click)="clearSelections()"
     >
-      Clear Selections
+      Clear
       <span class="material-icons"> clear </span>
     </button>
   </div>
