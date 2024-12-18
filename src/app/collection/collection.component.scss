@@ -213,7 +213,6 @@ table {
   opacity: 0.8;
 }
 .custom-input {
-
   border-bottom: 1px solid #000;
   margin-bottom: 2em;
 }
@@ -262,4 +261,9 @@ table {
 .input-with-button {
   display: flex;
   align-items: center;
+}
+
+/* iPhone XR, 11 (6.1-inch screen) */
+@media only screen and (min-device-width: 380px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
+
 }

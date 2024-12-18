@@ -21,7 +21,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { EditPlantComponent } from '../edit-plant/edit-plant.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment'; // Generic import
 
 interface Plant {
   scientific_name: string;

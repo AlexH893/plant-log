@@ -115,7 +115,6 @@ h3 {
 .collection-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Create 3 equal columns */
-  gap: 2rem; /* Space between grid items */
   padding: 1rem;
   justify-items: center; /* Centers items within each grid cell */
   width: 100%; /* Ensure collection list takes full width */
@@ -160,25 +159,32 @@ h3 {
   width: 50%;
   margin-top: 5vh;
   margin-left: 20vw;
-
 }
 
-
 /* iPhone XR, 11 (6.1-inch screen) */
-@media only screen
-  and (min-device-width: 380px)
-  and (max-device-width: 896px)
-  and (-webkit-min-device-pixel-ratio: 2) {
+@media only screen and (min-device-width: 380px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
+  .form {
+    margin: auto;
+    width: 80vw;
+    margin-top: 5vh;
+  }
 
-    .form {
-      margin: auto;
-      width: 80vw;
-      margin-top: 5vh;
-    }
+  .toolbar {
+    position: fixed;
+    right: 5vw;
+    bottom: 7vh;
+    display: flex;
+    flex-direction: column; /* Stack buttons vertically */
+    gap: .3rem; /* Adds space between buttons */
+  }
 
-    .toolbar {
-      position: absolute;
-      right: 5vw;
-      bottom: 10vh;
-    }
+  .collection-list {
+    margin-top: -7vh;
+    width: 50%;
+  }
+  .collection-item {
+    height: 10vh;
+    width: 100%;
+    margin-bottom: 1vh;
+  }
 }

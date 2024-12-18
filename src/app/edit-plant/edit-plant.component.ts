@@ -10,7 +10,7 @@ import { HttpClient } from '@angular/common/http';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CollectionComponent } from '../collection/collection.component';
 import { CollectionService } from '../collection.service';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment'; // Generic import
 
 @Component({
   selector: 'app-edit-plant',

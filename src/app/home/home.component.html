@@ -1,6 +1,7 @@
 <div class="form">
   <h2>Plant Log</h2>
-
+  <h3 style="margin-top: -3vh;"  *ngIf="collections.length === 1">Your Collection</h3>
+  <h3 style="margin-top: -3vh;"  *ngIf="collections.length > 1">Your Collections</h3>
   <div class="container">
     <button mat-button class="create-collection" (click)="toggleForm()">
       <mat-icon>list</mat-icon>
@@ -27,9 +28,11 @@
     </form>
 
     <!-- Collection list display -->
-    <div class="collection-list" *ngIf="collections.length > 0">
-      <h3 *ngIf="collections.length === 1">Your Collection</h3>
-      <h3 *ngIf="collections.length > 1">Your Collections</h3>
+    <div
+      class="collection-list"
+      *ngIf="collections.length > 0"
+    >
+
 
       <ul>
         <li *ngFor="let collection of collections" class="collections">

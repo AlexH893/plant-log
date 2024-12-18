@@ -2,7 +2,7 @@ import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment.prod';
+import { environment } from 'src/environments/environment'; // Generic import
 import { NewsComponent } from '../news/news.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalService } from '../modal.service';
