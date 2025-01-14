@@ -181,6 +181,54 @@ router.put(
   }
 );
 
+// PUT update plant last_watered date
+router.put(
+  "/collection/:collectionId/plant/:plantId/last-watered",
+  async (req, res) => {
+    const { collectionId, plantId } = req.params;
+    const { lastWatered } = req.body; // Expecting a date string in the request body
+
+    console.log("Collection ID:", collectionId);
+    console.log("Plant ID:", plantId);
+    console.log("Last Watered Date:", lastWatered);
+
+    // Validate input
+    if (!lastWatered) {
+      return res
+        .status(400)
+        .json({ message: "Last watered date is required." });
+    }
+
+    try {
+      // Update query to modify the last_watered field in the plant table
+      const updateQuery = `
+      UPDATE collection_plants
+      SET last_watered = ?
+      WHERE id = ? AND deleted = 0
+    `;
+
+      // Use plantId from the route and lastWatered from the body
+      const [result] = await db.query(updateQuery, [lastWatered, plantId]);
+
+      if (result.affectedRows === 0) {
+        return res
+          .status(404)
+          .json({ message: "Plant not found or already deleted." });
+      }
+
+      res
+        .status(200)
+        .json({ message: "Last watered date updated successfully." });
+    } catch (err) {
+      console.error("Error updating last watered date:", err);
+      res.status(500).json({
+        message: "An error occurred while updating the last watered date.",
+        error: err.message,
+      });
+    }
+  }
+);
+
 // PUT soft delete plant
 router.put(
   "/collection/:collectionId/plant/:plantId/delete",
