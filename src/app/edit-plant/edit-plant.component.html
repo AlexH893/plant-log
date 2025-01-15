@@ -1,4 +1,8 @@
+<div class="modal-header">
+  <button class="close-btn" (click)="closeModal()">X</button>
+</div>
 <h3>Editing Plant: {{ selectedPlant?.common_name }}</h3>
+
 <h3>Last watered: {{ formatLastWatered(selectedPlant?.last_watered) }}</h3>
 
 <input
