@@ -149,4 +149,8 @@ export class EditPlantComponent implements OnInit {
     const formattedDate = new Date(date);
     return formattedDate.toLocaleDateString(); // You can customize the format here
   }
+
+  closeModal() {
+    this.dialogRef.close();
+  }
 }

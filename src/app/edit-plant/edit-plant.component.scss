@@ -1,0 +1,26 @@
+.modal-header {
+  display: flex;
+  justify-content: end;
+  align-items: right;
+  margin-bottom: 10px;
+}
+
+.close-btn {
+  background: none;
+  border: 2px solid #333;
+  border-radius: 50%;
+  color: #333;
+  font-size: 16px;
+  font-weight: bold;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #ff0000;
+}
