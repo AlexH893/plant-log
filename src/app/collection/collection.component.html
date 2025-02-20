@@ -34,6 +34,14 @@
       </td>
     </ng-container>
 
+    <!-- Times Watered Column -->
+    <ng-container matColumnDef="times_watered">
+      <th mat-header-cell *matHeaderCellDef>Times Watered</th>
+      <td mat-cell *matCellDef="let plant">
+        {{ plant.times_watered }}
+      </td>
+    </ng-container>
+
     <!-- Water Column -->
     <ng-container matColumnDef="water">
       <th mat-header-cell *matHeaderCellDef style="width: 18w">Water</th>
@@ -108,20 +116,19 @@
   </mat-form-field>
   <!-- Custom plant input -->
   <div class="input-with-button">
-  <mat-form-field>
-    <input
-      class="custom-input"
-      matInput
-      placeholder="Or add your own"
-      [formControl]="customPlantInput"
-      (keyup.enter)="addCustomPlant()"
-    />
-
-  </mat-form-field>
+    <mat-form-field>
+      <input
+        class="custom-input"
+        matInput
+        placeholder="Or add your own"
+        [formControl]="customPlantInput"
+        (keyup.enter)="addCustomPlant()"
+      />
+    </mat-form-field>
     <button mat-icon-button matSuffix (click)="addCustomPlant()">
       <mat-icon>add</mat-icon>
     </button>
-    </div>
+  </div>
   <div *ngIf="selectedPlants.length > 0">
     <h3>Selected Plants to be added</h3>
     <div *ngFor="let plant of selectedPlants">
@@ -140,7 +147,7 @@
       mat-raised-button
       (click)="addPlants(collectionId)"
     >
-      Add 
+      Add
       <span class="material-icons"> add </span>
     </button>
 

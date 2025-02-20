@@ -32,6 +32,7 @@ interface Plant {
   common_name: string;
   collectionId?: number;
   id: number;
+  times_watered?: number;
 }
 
 const ELEMENT_DATA: Plant[] = [];
@@ -99,7 +100,13 @@ export class CollectionComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  displayedColumns: string[] = ['name', 'last_watered', 'water', 'actions'];
+  displayedColumns: string[] = [
+    'name',
+    'last_watered',
+    'times_watered',
+    'water',
+    'actions',
+  ];
   dataSource = new MatTableDataSource<Plant>(ELEMENT_DATA);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   plantCount: number = 0;
@@ -128,7 +135,7 @@ export class CollectionComponent implements OnInit {
     this.collectionId = 1;
   }
 
-  // Water plant - send current timestamp
+  // Water plant - send current timestamp and update times_watered
   waterPlant(plant: Plant): void {
     console.log('Collection ID:', this.collectionId);
     console.log('Plant ID:', plant.id);
@@ -145,6 +152,14 @@ export class CollectionComponent implements OnInit {
         console.log(`${plant.common_name} has been watered!`);
         plant.watered = true;
         plant.last_watered = response.last_watered;
+
+        // Update times_watered if it's returned in the response
+        if (response.times_watered !== undefined) {
+          plant.times_watered = response.times_watered;
+        } else {
+          // Fallback in case the response doesn't include it
+          plant.times_watered = (plant.times_watered || 0) + 1;
+        }
       },
       (error) => {
         console.error('Error watering plant:', error);
@@ -286,7 +301,10 @@ export class CollectionComponent implements OnInit {
       (response) => {
         if (response.success) {
           this.plantCount = response.plants.length;
-          this.dataSource.data = response.plants;
+          this.dataSource.data = response.plants.map((plant) => ({
+            ...plant,
+            times_watered: plant.times_watered ?? 0, // Ensure it's always a number
+          }));
           this.dataSource.paginator = this.paginator;
         } else {
           console.error('Failed to fetch plants');

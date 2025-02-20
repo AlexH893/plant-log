@@ -54,16 +54,13 @@ router.get("/collection", authenticateToken, async (req, res) => {
 // GET all plants in a collection
 router.get("/collection/:id/plants", async (req, res) => {
   try {
-    // Retrieve all plants for the given collection ID
     const collectionId = req.params.id;
     const [plants] = await db.query(
-      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, deleted, is_custom
+      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, times_watered, deleted, is_custom
        FROM collection_plants
        WHERE collection_id = ? AND deleted = 0`,
       [collectionId]
     );
-    console.log("Plants fetched from database:", plants);
-
     res.json({ success: true, plants });
   } catch (error) {
     console.error("Error finding plants:", error);
@@ -99,7 +96,6 @@ router.get("/plant/:id", async (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: "Plant not found" });
     }
-
     res.status(200).json(results[0]);
   } catch (err) {
     console.error("Error retrieving plant:", err);
@@ -113,7 +109,7 @@ router.put("/collection/:collectionId/plant/:plantId", async (req, res) => {
 
   const sql = `
     UPDATE collection_plants
-    SET last_watered = NOW()
+    SET last_watered = NOW(), times_watered = times_watered + 1
     WHERE collection_id = ? AND id = ?
   `;
 
