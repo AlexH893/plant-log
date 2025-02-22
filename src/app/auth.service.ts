@@ -14,7 +14,7 @@ export class AuthService {
   // Check if the user is authenticated
   isAuthenticated(): boolean {
     const token = this.getToken();
-    return !!token && !this.isTokenExpired(token); // Check if token exists and is not expired
+    return !!token && !this.isTokenExpired(token);
   }
 
   // Login method: authenticates the user and stores the authentication token
@@ -35,19 +35,22 @@ export class AuthService {
 
   // Retrieve the token from local storage
   getToken(): string | null {
-    
     return localStorage.getItem('authToken');
   }
 
   // Extract user information from the token
   getUserInfo(): { id: string; username: string } | null {
     const token = this.getToken();
-    if (!token) return null;
+    if (!token) {
+      console.log('No token found');
+      return null;
+    }
 
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return { id: payload.id, username: payload.username }; // Customize based on token structure
+      return { id: payload.userId, username: payload.username };
     } catch (e) {
+      console.error('Error decoding token:', e);
       return null;
     }
   }
@@ -56,8 +59,11 @@ export class AuthService {
   private isTokenExpired(token: string): boolean {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload.exp * 1000 < Date.now();
+      const expired = payload.exp * 1000 < Date.now();
+      console.log('Token expired:', expired);
+      return expired;
     } catch (e) {
+      console.error('Error decoding token', e);
       return true;
     }
   }

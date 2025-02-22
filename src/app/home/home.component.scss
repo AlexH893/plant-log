@@ -188,3 +188,16 @@ h3 {
     margin-bottom: 1vh;
   }
 }
+.notification-icon {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 20px;
+}

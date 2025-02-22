@@ -1,11 +1,13 @@
+import { NewsService } from '../news.service';
 import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { environment } from 'src/environments/environment'; // Generic import
+import { environment } from 'src/environments/environment';
 import { NewsComponent } from '../news/news.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalService } from '../modal.service';
+import { AuthService } from '../auth.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -18,12 +20,18 @@ export class HomeComponent {
   collectionUrl = `${environment.apiUrl}/collection`;
   @ViewChild('collectionInput') collectionInput!: ElementRef;
   isNewsModalVisible: boolean = false;
+  userId: number | null = null;
+
+  newUpdate: boolean = false;
+  selectedNews: any;
 
   constructor(
     private http: HttpClient,
     private router: Router,
     public dialog: MatDialog,
-    public modalService: ModalService
+    public modalService: ModalService,
+    private newsService: NewsService,
+    private authService: AuthService
   ) {}
 
   toggleForm() {
@@ -64,7 +72,31 @@ export class HomeComponent {
   }
 
   ngOnInit() {
+    setTimeout(() => {
+      this.getUserId();
+    }, 500); // Delay allows user info retrieval
     this.getCollection();
+  }
+
+  getUserId() {
+    const token = localStorage.getItem('authToken');
+    const userInfo = this.authService.getUserInfo();
+    if (userInfo) {
+      this.userId = Number(userInfo.id);
+      this.checkForNewUpdates();
+    }
+  }
+
+  // Check if the user has unread news
+  checkForNewUpdates(): void {
+    if (this.userId) {
+      this.newsService.getNewUpdates(this.userId).subscribe((status) => {
+        console.log('News update status:', status);
+        this.newUpdate = status.hasNewUpdate;
+      });
+    } else {
+      console.warn('userId is null, skipping checkForNewUpdates');
+    }
   }
 
   goToCollection(collectionId: number) {
@@ -117,8 +149,27 @@ export class HomeComponent {
     this.router.navigate(['/home']);
   }
 
-  openNewsModal() {
-    console.log('CollectionComponent: Triggering openNewsModal...');
+  openNewsModal(news: any) {
+    this.selectedNews = news;
+    console.log('NewsComponent: Opening modal for news:', news);
     this.modalService.openNewsModal();
+
+    // Ensure that userId is a valid number
+    const userId = this.authService.getUserInfo()?.id ?? null;
+
+    // If userId exists, convert it to number and proceed
+    if (userId) {
+      this.userId = Number(userId);
+      this.newsService.markAsRead(this.userId).subscribe({
+        next: (response) => {
+          console.log('News marked as read:', response);
+        },
+        error: (error) => {
+          console.error('Error marking news as read:', error);
+        },
+      });
+    } else {
+      console.error('User ID is undefined or invalid');
+    }
   }
 }
