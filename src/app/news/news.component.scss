@@ -36,3 +36,16 @@
   color: #333;
   cursor: pointer;
 }
+.close-news-btn {
+  width: 10vw;
+  height: 5vh;
+  font-size: 2rem;
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: transparent;
+  border: none;
+  color: #333;
+  cursor: pointer;
+}
