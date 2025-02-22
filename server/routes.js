@@ -52,17 +52,30 @@ router.get("/collection", authenticateToken, async (req, res) => {
 });
 
 // GET all plants in a collection
-router.get("/collection/:id/plants", async (req, res) => {
+router.get("/collection/:id/plants", authenticateToken, async (req, res) => {
   try {
-    // Retrieve all plants for the given collection ID
     const collectionId = req.params.id;
+    const userId = req.user.userId; // Authenticated user ID
+
+    // Check if the collection belongs to the user
+    const collectionQuery =
+      "SELECT * FROM plant_collection WHERE id = ? AND user_id = ?";
+    const [collection] = await db.query(collectionQuery, [
+      collectionId,
+      userId,
+    ]);
+
+    if (collection.length === 0) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
+    // If the user owns the collection, fetch the plants
     const [plants] = await db.query(
-      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, deleted, is_custom
+      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, times_watered, deleted, is_custom
        FROM collection_plants
        WHERE collection_id = ? AND deleted = 0`,
       [collectionId]
     );
-    console.log("Plants fetched from database:", plants);
 
     res.json({ success: true, plants });
   } catch (error) {
@@ -72,14 +85,21 @@ router.get("/collection/:id/plants", async (req, res) => {
 });
 
 // GET collection by ID
-router.get("/collection/:id", async (req, res) => {
+router.get("/collection/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
-  const query = "SELECT * FROM plant_collection WHERE id = ?";
+  const userId = req.user.userId;
+
+  console.log("Authenticated User ID:", userId);
 
   try {
-    const [results] = await db.query(query, [id]);
+    const query = "SELECT * FROM plant_collection WHERE id = ? AND user_id = ?";
+    console.log("Executing query:", query, "with values:", [id, userId]);
+    const [results] = await db.query(query, [id, userId]);
+
+    console.log("Query results:", results);
+
     if (results.length === 0) {
-      return res.status(404).json({ message: "Collection not found" });
+      return res.status(403).json({ message: "Access denied" });
     }
 
     res.status(200).json(results[0]);
@@ -99,7 +119,6 @@ router.get("/plant/:id", async (req, res) => {
     if (results.length === 0) {
       return res.status(404).json({ message: "Plant not found" });
     }
-
     res.status(200).json(results[0]);
   } catch (err) {
     console.error("Error retrieving plant:", err);
@@ -108,34 +127,65 @@ router.get("/plant/:id", async (req, res) => {
 });
 
 // PUT Water plant
-router.put("/collection/:collectionId/plant/:plantId", async (req, res) => {
-  const { collectionId, plantId } = req.params;
+router.put(
+  "/collection/:collectionId/plant/:plantId",
+  authenticateToken,
+  async (req, res) => {
+    const { collectionId, plantId } = req.params;
+    const userId = req.user.userId; // Access the userId from req.user
 
-  const sql = `
-    UPDATE collection_plants
-    SET last_watered = NOW()
-    WHERE collection_id = ? AND id = ?
-  `;
-
-  try {
-    const [results] = await db.query(sql, [collectionId, plantId]);
-
-    if (results.affectedRows === 0) {
-      return res
-        .status(404)
-        .json({ error: "Plant not found in the collection" });
+    if (!userId) {
+      return res.status(400).json({ error: "User not authenticated" });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Plant successfully watered",
-      last_watered: new Date().toISOString(),
-    });
-  } catch (err) {
-    console.error("Error updating last_watered:", err);
-    res.status(500).json({ error: "Error updating plant watering status" });
+    const updateSql = `
+    UPDATE collection_plants cp
+    JOIN plant_collection pc ON cp.collection_id = pc.id
+    SET cp.last_watered = NOW(), cp.times_watered = cp.times_watered + 1
+    WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
+  `;
+
+    const insertHistorySql = `
+      INSERT INTO water_history (watered_date, plant_id, user_id)
+    VALUES (NOW(), ?, ?)
+  `;
+
+    try {
+      const [updateResults] = await db.query(updateSql, [
+        collectionId,
+        plantId,
+        userId,
+      ]);
+
+      if (updateResults.affectedRows === 0) {
+        return res.status(404).json({
+          error:
+            "Plant not found in the collection or not authorized to update",
+        });
+      }
+
+      const [historyResults] = await db.query(insertHistorySql, [
+        plantId,
+        userId,
+      ]);
+
+      res.status(200).json({
+        success: true,
+        message: "Plant successfully watered and watering event logged",
+        last_watered: new Date().toISOString(),
+        watering_event_id: historyResults.insertId, // Return the ID of the new water history entry
+      });
+    } catch (err) {
+      console.error(
+        "Error updating last_watered or logging watering event:",
+        err
+      );
+      res.status(500).json({
+        error: "Error updating plant watering status or logging event",
+      });
+    }
   }
-});
+);
 
 // PUT update plant nickname
 router.put(
@@ -303,59 +353,6 @@ router.post("/collection", authenticateToken, async (req, res) => {
 });
 
 // POST Add a plant to a collection
-// router.post("/collection/:id/add-plant", async (req, res) => {
-//   console.log("Reached /collection/:id/add-plant route");
-
-//   const collectionId = req.params.id;
-//   const {
-//     scientific_name,
-//     common_name,
-//     nickname,
-//     quantity,
-//     last_watered,
-//     deleted,
-//     is_custom,
-//   } = req.body;
-
-//   try {
-//     // Insert the plant into the plant table with NOW() for date_added
-//     const [plantResult] = await db.query(
-//       "INSERT INTO plant (scientific_name, common_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, NOW(), 0, 0)",
-//       [
-//         scientific_name,
-//         common_name,
-//         nickname,
-//         quantity,
-//         last_watered,
-//         deleted,
-//         is_custom,
-//       ]
-//     );
-//     // Retrieve the newly inserted plantId
-//     const plantId = plantResult.insertId;
-
-//     // Now insert the plant into the collection_plants table with NOW() for date_added
-//     await db.query(
-//       "INSERT INTO collection_plants (collection_id, plant_id, common_name, scientific_name, nickname, quantity, last_watered, date_added, deleted, is_custom) VALUES (?, ?, ?, ?, ?, ?, ?, NOW(), 0, 0)",
-//       [
-//         collectionId,
-//         plantId, // Use the plantId retrieved from the plant table
-//         common_name,
-//         scientific_name,
-//         nickname,
-//         quantity,
-//         deleted,
-//         is_custom,
-//       ]
-//     );
-
-//     res.json({ success: true, plantId });
-//   } catch (error) {
-//     console.error("Error adding plant to collection:", error);
-//     res.status(500).json({ error: "Error adding plant to collection" });
-//   }
-// });
-
 router.post("/collection/:collectionId/plants/add", async (req, res) => {
   const { collectionId } = req.params;
   const { plants } = req.body;

@@ -106,8 +106,8 @@
   text-decoration: underline;
 }
 
-/* iPhone XR, 11 (6.1-inch screen) */
-@media only screen and (min-device-width: 380px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
+/* phones */
+@media only screen and (min-device-width: 330px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
   .input {
     width: 40vw;
   }
