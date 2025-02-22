@@ -585,4 +585,68 @@ router.post("/login", async (req, res) => {
   }
 });
 
+// Route to check for unread news updates for a user
+router.get("/check-new-updates/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  try {
+    // Query database to check if the user has unread news
+    const query = `SELECT read_news FROM users WHERE id = ?`;
+    const results = await db.query(query, [userId]);
+
+    // Log the results to verify their structure
+    console.log("Database results:", results);
+
+    if (results.length === 0 || results[0].length === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Access the read_news value from the first array element
+    const readNewsValue = parseInt(results[0][0].read_news, 10);
+    console.log("read_news value:", readNewsValue);
+
+    // Check the type of the value (just to confirm it's what we expect)
+    console.log("Type of read_news value:", typeof readNewsValue);
+
+    // Compare the value, checking for 0 (unread news)
+    const hasNewUpdate = readNewsValue === 0;
+    console.log("hasNewUpdate:", hasNewUpdate);
+
+    res.json({ hasNewUpdate });
+  } catch (error) {
+    console.error("Error checking new updates:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// Route to mark the news as read when the user clicks the news button
+router.post("/read-news", async (req, res) => {
+  const userId = req.body.userId;
+
+  if (!userId) {
+    return res.status(400).json({ error: "User ID is required" });
+  }
+
+  try {
+    const [result] = await db.query(
+      "UPDATE users SET read_news = 1 WHERE id = ?",
+      [userId]
+    );
+
+    // Check if any rows were updated
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "News marked as read" });
+  } catch (error) {
+    console.error("Error marking news as read:", error);
+    res.status(500).json({ message: "Error updating news status" });
+  }
+});
+
 module.exports = router;

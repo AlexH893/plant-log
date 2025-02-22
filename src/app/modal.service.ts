@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { BehaviorSubject } from 'rxjs';
 import { NewsComponent } from './news/news.component'; // Ensure path is correct
-
+import { NewsService } from './news.service';
 @Injectable({
   providedIn: 'root',
 })
