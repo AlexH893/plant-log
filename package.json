@@ -6,7 +6,7 @@
     "start": "node server/app.js",
     "build": "ng build --configuration production",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "NODE_ENV=test mocha tests --timeout 5000"
   },
   "private": true,
   "dependencies": {
@@ -22,6 +22,7 @@
     "@angular/router": "^15.2.0",
     "axios": "^1.7.7",
     "bcrypt": "^5.1.1",
+    "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
@@ -39,6 +40,7 @@
     "@angular/cli": "~15.2.1",
     "@angular/compiler-cli": "^15.2.0",
     "@types/jasmine": "~4.3.0",
+    "chai": "^4.5.0",
     "cypress": "^13.16.1",
     "jasmine-core": "~4.5.0",
     "karma": "~6.4.0",
@@ -46,6 +48,8 @@
     "karma-coverage": "~2.2.0",
     "karma-jasmine": "~5.1.0",
     "karma-jasmine-html-reporter": "~2.0.0",
+    "mocha": "^11.1.0",
+    "supertest": "^7.0.0",
     "typescript": "~4.9.4"
   }
 }
