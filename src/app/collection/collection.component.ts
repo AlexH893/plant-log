@@ -122,6 +122,7 @@ export class CollectionComponent implements OnInit {
   filteredOptions!: Observable<string[]>;
   selectedPlant: any;
   plantIdApiUrl = `${environment.apiUrl}/plants`;
+  today: Date = new Date();
 
   constructor(
     private route: ActivatedRoute,
