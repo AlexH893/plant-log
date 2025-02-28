@@ -16,6 +16,8 @@
     #input
   />
 </mat-form-field>
+<p>Today's Date: {{ today | date : "MMM d" }}</p>
+
 <div class="table-container">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Name Column -->
