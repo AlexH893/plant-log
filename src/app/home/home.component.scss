@@ -52,7 +52,6 @@ button:focus:not(:active) span::after {
 
 .create-collection {
   background: #41a85f;
-  width: 20vw;
   width: 35vw;
   margin-bottom: 2em;
   margin-left: 3em;
@@ -175,17 +174,26 @@ h3 {
     bottom: 7vh;
     display: flex;
     flex-direction: column; /* Stack buttons vertically */
-    gap: .3rem; /* Adds space between buttons */
+    gap: 0.3rem; /* Adds space between buttons */
   }
 
   .collection-list {
     margin-top: -7vh;
-    width: 50%;
+    width: 30vw;
+    margin-right: 20vw;
+
   }
   .collection-item {
     height: 10vh;
-    width: 100%;
+    width: 45vw;
     margin-bottom: 1vh;
+  }
+
+  .collection-name {
+    font-size: 1.1rem;
+  }
+  .date {
+    font-size: .8rem;
   }
 }
 .notification-icon {
