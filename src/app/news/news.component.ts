@@ -13,6 +13,11 @@ export class NewsComponent implements OnInit {
   newUpdate = false;
   newsList = [
     {
+      id: 3,
+      title: 'Total Plant Count - March 8',
+      content: 'Displays count of all of your plants, frontend tweaks',
+    },
+    {
       id: 2,
       title: 'Times Watered - Feb 22',
       content:

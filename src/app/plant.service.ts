@@ -8,7 +8,7 @@ import { map, catchError } from 'rxjs/operators';
 })
 export class PlantService {
   private apiUrl = 'http://localhost:3000/api/plants';
-
+  private plantCountUrl = 'http://localhost:3000/api/total-plants';
   constructor(private http: HttpClient) {}
 
   searchPlants(query: string): Observable<any[]> {
@@ -20,6 +20,12 @@ export class PlantService {
         console.error('Failed to fetch plants from backend');
         return [];
       })
+    );
+  }
+
+  getTotalPlants(userId: number): Observable<{ total_plants: number }> {
+    return this.http.get<{ total_plants: number }>(
+      `${this.plantCountUrl}/${userId}`
     );
   }
 }
