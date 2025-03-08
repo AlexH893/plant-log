@@ -21,6 +21,8 @@ export class HomeComponent {
   listName = new FormControl('');
   isFormVisible = false;
   collectionUrl = `${environment.apiUrl}/collection`;
+  countUrl =   `${environment.plantCountUrl}/total-plants`;
+
   @ViewChild('collectionInput') collectionInput!: ElementRef;
   isNewsModalVisible: boolean = false;
   userId: number | null = null;
