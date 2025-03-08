@@ -1,3 +1,4 @@
+import { PlantService } from './../plant.service';
 import { NewsService } from '../news.service';
 import { Component, ElementRef, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
@@ -8,12 +9,14 @@ import { NewsComponent } from '../news/news.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalService } from '../modal.service';
 import { AuthService } from '../auth.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
+  totalPlants: number = 0;
   collections: any[] = [];
   listName = new FormControl('');
   isFormVisible = false;
@@ -31,7 +34,8 @@ export class HomeComponent {
     public dialog: MatDialog,
     public modalService: ModalService,
     private newsService: NewsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private plantService: PlantService
   ) {}
 
   toggleForm() {
@@ -84,7 +88,20 @@ export class HomeComponent {
     if (userInfo) {
       this.userId = Number(userInfo.id);
       this.checkForNewUpdates();
+
+      this.fetchTotalPlants(this.userId);
     }
+  }
+
+  fetchTotalPlants(userId: number): void {
+    this.plantService.getTotalPlants(userId).subscribe({
+      next: (data) => {
+        this.totalPlants = data.total_plants;
+      },
+      error: (error) => {
+        console.error('Error fetching total plant count:', error);
+      },
+    });
   }
 
   // Check if the user has unread news

@@ -344,7 +344,7 @@ router.post("/collection", authenticateToken, async (req, res) => {
       name: name,
       date_created: new Date(),
       active: 1,
-      user_id: userId, // Return the user ID for confirmation
+      user_id: userId,
     });
   } catch (err) {
     console.error("Error inserting collection:", err);
@@ -646,6 +646,68 @@ router.post("/read-news", async (req, res) => {
   } catch (error) {
     console.error("Error marking news as read:", error);
     res.status(500).json({ message: "Error updating news status" });
+  }
+});
+
+// DELETE Delete a collection by ID
+router.delete("/collection/:id", authenticateToken, async (req, res) => {
+  const collectionId = req.params.id;
+  const userId = req.user.userId;
+
+  console.log("Received request to delete collection:");
+  console.log("Collection ID:", collectionId);
+  console.log("User ID:", userId);
+
+  if (!userId) {
+    return res.status(400).json({ message: "User ID is missing" });
+  }
+
+  const query = "DELETE FROM plant_collection WHERE id = ? AND user_id = ?";
+
+  try {
+    const [results] = await db.query(query, [collectionId, userId]);
+
+    if (results.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: "Collection not found or unauthorized" });
+    }
+
+    console.log("Collection deleted successfully:", collectionId);
+    res.status(200).json({ message: "Collection deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting collection:", err);
+    res.status(500).send(err);
+  }
+});
+
+// get total plant count for user
+router.get("/total-plants/:userId", async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const query = `
+        SELECT users.id, users.username,
+            COALESCE(SUM(collection_plants.quantity), 0) AS total_plants
+        FROM users
+        LEFT JOIN plant_collection ON users.id = plant_collection.user_id
+        LEFT JOIN collection_plants ON plant_collection.id = collection_plants.collection_id
+        WHERE users.id = ?
+        GROUP BY users.id;
+    `;
+
+    const [rows] = await db.execute(query, [userId]);
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "User not found or no plants in collections" });
+    }
+
+    res.json({ total_plants: rows[0].total_plants });
+  } catch (error) {
+    console.error("Error fetching total plant count:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 });
 
