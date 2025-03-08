@@ -682,7 +682,7 @@ router.delete("/collection/:id", authenticateToken, async (req, res) => {
 });
 
 // get total plant count for user
-router.get("/total-plants/:userId", async (req, res) => {
+router.get("/total-plants/:userId", authenticateToken, async (req, res) => {
   const userId = req.params.userId;
 
   try {
