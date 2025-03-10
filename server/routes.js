@@ -692,7 +692,7 @@ router.get("/total-plants/:userId", authenticateToken, async (req, res) => {
         FROM users
         LEFT JOIN plant_collection ON users.id = plant_collection.user_id
         LEFT JOIN collection_plants ON plant_collection.id = collection_plants.collection_id
-        WHERE users.id = ?
+        WHERE users.id = ? AND (collection_plants.deleted IS NULL OR collection_plants.deleted = 0)
         GROUP BY users.id;
     `;
 
@@ -710,5 +710,6 @@ router.get("/total-plants/:userId", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 module.exports = router;
