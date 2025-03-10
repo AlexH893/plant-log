@@ -31,7 +31,7 @@ import { AuthInterceptor } from './auth.interceptor';
 import { NewsComponent } from './news/news.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // Native date functionality
-
+import {MatExpansionModule} from '@angular/material/expansion';
 @NgModule({
   declarations: [
     AppComponent,
@@ -66,6 +66,7 @@ import { MatNativeDateModule } from '@angular/material/core'; // Native date fun
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    MatExpansionModule
   ],
   providers: [
     {

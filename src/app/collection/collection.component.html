@@ -23,7 +23,7 @@
     <!-- Name Column -->
     <ng-container matColumnDef="name">
       <th mat-header-cell *matHeaderCellDef style="font-size: 0.8em">Name</th>
-      <td mat-cell *matCellDef="let plant" style="height: 12vh">
+      <td mat-cell *matCellDef="let plant">
         {{ plant.nickname || plant.common_name }}
       </td>
     </ng-container>
@@ -96,83 +96,86 @@
 </div>
 <mat-divider></mat-divider>
 
-<br />
-<br />
-<h2>Add Plants</h2>
+<mat-accordion>
+  <mat-expansion-panel style="margin-top: 1vh">
+    <mat-expansion-panel-header>
+      <mat-panel-title>Add Plants</mat-panel-title>
+    </mat-expansion-panel-header>
+    <form class="example-form">
+      <mat-form-field>
+        <input
+          matInput
+          placeholder="Search for a plant"
+          [formControl]="plantSearch"
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          (optionSelected)="onPlantSelected($event)"
+        >
+          <mat-option
+            *ngFor="let plant of filteredOptions | async"
+            [value]="plant"
+          >
+            {{ plant }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <!-- Custom plant input -->
+      <div class="input-with-button">
+        <mat-form-field>
+          <input
+            class="custom-input"
+            matInput
+            placeholder="Or add your own"
+            [formControl]="customPlantInput"
+            (keyup.enter)="addCustomPlant()"
+          />
+        </mat-form-field>
+        <button mat-icon-button matSuffix (click)="addCustomPlant()">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+      <div *ngIf="selectedPlants.length > 0">
+        <h3>Selected Plants to be added</h3>
+        <div *ngFor="let plant of selectedPlants">
+          {{ plant.scientific_name }} - Quantity: {{ plant.quantity }}
+          <button mat-button (click)="adjustQuantity(plant.scientific_name, 1)">
+            +
+          </button>
+          <button
+            mat-button
+            (click)="adjustQuantity(plant.scientific_name, -1)"
+          >
+            -
+          </button>
+        </div>
+      </div>
+      <div class="btns">
+        <button
+          class="plant-btn"
+          mat-raised-button
+          (click)="addPlants(collectionId)"
+        >
+          Add
+          <span class="material-icons"> add </span>
+        </button>
 
-<mat-divider></mat-divider>
-<br />
-
-<form class="example-form">
-  <mat-form-field>
-    <input
-      matInput
-      placeholder="Search for a plant"
-      [formControl]="plantSearch"
-      [matAutocomplete]="auto"
-    />
-    <mat-autocomplete
-      #auto="matAutocomplete"
-      (optionSelected)="onPlantSelected($event)"
-    >
-      <mat-option *ngFor="let plant of filteredOptions | async" [value]="plant">
-        {{ plant }}
-      </mat-option>
-    </mat-autocomplete>
-  </mat-form-field>
-  <!-- Custom plant input -->
-  <div class="input-with-button">
-    <mat-form-field>
-      <input
-        class="custom-input"
-        matInput
-        placeholder="Or add your own"
-        [formControl]="customPlantInput"
-        (keyup.enter)="addCustomPlant()"
-      />
-    </mat-form-field>
-    <button mat-icon-button matSuffix (click)="addCustomPlant()">
-      <mat-icon>add</mat-icon>
-    </button>
-  </div>
-  <div *ngIf="selectedPlants.length > 0">
-    <h3>Selected Plants to be added</h3>
-    <div *ngFor="let plant of selectedPlants">
-      {{ plant.scientific_name }} - Quantity: {{ plant.quantity }}
-      <button mat-button (click)="adjustQuantity(plant.scientific_name, 1)">
-        +
-      </button>
-      <button mat-button (click)="adjustQuantity(plant.scientific_name, -1)">
-        -
-      </button>
-    </div>
-  </div>
-  <div class="btns">
-    <button
-      class="plant-btn"
-      mat-raised-button
-      (click)="addPlants(collectionId)"
-    >
-      Add
-      <span class="material-icons"> add </span>
-    </button>
-
-    <button
-      class="clear"
-      mat-raised-button
-      color="warn"
-      (click)="clearSelections()"
-    >
-      Clear
-      <span class="material-icons"> clear </span>
-    </button>
-  </div>
-</form>
-<br /><br />
+        <button
+          class="clear"
+          mat-raised-button
+          color="warn"
+          (click)="clearSelections()"
+        >
+          Clear
+          <span class="material-icons"> clear </span>
+        </button>
+      </div>
+    </form>
+    <br /><br />
+  </mat-expansion-panel>
+</mat-accordion>
 <div class="toolbar">
-  <!-- <button (click)="openNewsModal()" class="toolbar-btn">
-    <span class="material-icons"> campaign </span>
-  </button> -->
   <button (click)="home()" class="toolbar-btn">
     <span class="material-icons"> home </span>
   </button>
