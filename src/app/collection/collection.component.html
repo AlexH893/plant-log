@@ -1,13 +1,15 @@
 <div *ngIf="collection">
   <h2 class="collection-name">{{ collection.name }}</h2>
   <div class="plant-count">{{ plantCount }} plants</div>
+  <p>Today's Date: {{ today | date : "MMM d" }}</p>
+
   <!-- <p>Created on: {{ collection.date_created | date }}</p> -->
 </div>
 <mat-divider></mat-divider>
 <div id="toast" class="toast">Plant added successfully!</div>
 
 <!-- Table of plants-->
-<mat-form-field class="filter-input">
+<!-- <mat-form-field class="filter-input">
   <mat-label>Filter</mat-label>
   <input
     matInput
@@ -15,8 +17,7 @@
     placeholder="Ex. Snake Plant"
     #input
   />
-</mat-form-field>
-<p>Today's Date: {{ today | date : "MMM d" }}</p>
+</mat-form-field> -->
 
 <div class="table-container">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
