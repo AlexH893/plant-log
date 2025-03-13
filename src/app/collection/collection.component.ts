@@ -7,6 +7,9 @@ import { CollectionService } from '../collection.service';
 import { Router } from '@angular/router';
 import { NewsComponent } from '../news/news.component';
 import { ModalService } from '../modal.service';
+import { UserService } from '../user.service';
+import { AuthService } from '../auth.service';
+
 import {
   debounceTime,
   map,
@@ -26,13 +29,17 @@ import { environment } from 'src/environments/environment'; // Generic import
 interface Plant {
   scientific_name: string;
   water: string;
+  fertilize: string;
   last_watered: string;
+  last_fertilized: string;
   watered: boolean;
+  fertilized: boolean;
   quantity: number;
   common_name: string;
   collectionId?: number;
   id: number;
   times_watered?: number;
+  times_fertilized?: number;
 }
 
 const ELEMENT_DATA: Plant[] = [];
@@ -54,6 +61,42 @@ interface PlantIdResponse {
   encapsulation: ViewEncapsulation.None,
 })
 export class CollectionComponent implements OnInit {
+  showFertilizeFlag = false;
+  isFertilized: boolean = false;
+  userId!: number;
+  fertilizeState: number = 0; // Default state
+
+  getUserId() {
+    const token = localStorage.getItem('authToken');
+    const userInfo = this.authService.getUserInfo();
+    if (userInfo) {
+      this.userId = Number(userInfo.id);
+    }
+  }
+
+  toggleFertilize(event: any): void {
+    this.getUserId(); // Ensure userId is set
+
+    const newState = event.checked ? 1 : 0;
+
+    if (!this.userId) {
+      console.error('User ID is undefined');
+      return;
+    }
+
+    this.userService.updateFertilizeState(this.userId, newState).subscribe(
+      (response) => {
+        console.log('Fertilize state updated successfully:', response);
+        this.showFertilizeFlag = event.checked; // Update the flag
+        this.updateDisplayedColumns(); // Update displayed columns
+      },
+      (error) => {
+        console.error('Error updating fertilize state:', error);
+        this.showFertilizeFlag = !event.checked; // Revert in case of error
+      }
+    );
+  }
+
   addCustomPlant(): void {
     const customInput = (this.customPlantInput.value || '').trim();
 
@@ -80,8 +123,12 @@ export class CollectionComponent implements OnInit {
       common_name: customInput, // Use the same value for both if no distinction
       quantity: 1,
       water: 'Water',
+      fertilize: 'Fertilize',
       last_watered: 'Today', // Default value
+      last_fertilized: 'Today', // Default value
       watered: false,
+      fertilized: false,
+
       id: this.nextPlantId++, // Generate a new ID
     });
 
@@ -103,10 +150,11 @@ export class CollectionComponent implements OnInit {
   displayedColumns: string[] = [
     'name',
     'last_watered',
-    'times_watered',
+    ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
     'water',
     'actions',
   ];
+
   dataSource = new MatTableDataSource<Plant>(ELEMENT_DATA);
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   plantCount: number = 0;
@@ -131,7 +179,9 @@ export class CollectionComponent implements OnInit {
     public dialog: MatDialog,
     private snackBar: MatSnackBar,
     private router: Router,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private userService: UserService,
+    private authService: AuthService
   ) {
     this.collectionId = 1;
   }
@@ -168,6 +218,38 @@ export class CollectionComponent implements OnInit {
     );
   }
 
+  // Fertilize plant - send current timestamp and update times_fertilized
+  fertilizePlant(plant: Plant): void {
+    console.log('Collection ID:', this.collectionId);
+    console.log('Plant ID:', plant.id);
+
+    if (!this.collectionId || !plant.id) {
+      console.error('Plant or Collection ID is undefined');
+      return;
+    }
+
+    const url = `${environment.apiUrl}/collection/${this.collectionId}/fertilize-plant/${plant.id}`;
+
+    this.http.put(url, {}).subscribe(
+      (response: any) => {
+        console.log(`${plant.common_name} has been fertilized!`);
+        plant.fertilized = true;
+        plant.last_fertilized = response.last_fertilized;
+
+        // Update times_fertilized if it's returned in the response
+        if (response.times_fertilized !== undefined) {
+          plant.times_fertilized = response.times_fertilized;
+        } else {
+          // Fallback in case the response doesn't include it
+          plant.times_fertilized = (plant.times_fertilized || 0) + 1;
+        }
+      },
+      (error) => {
+        console.error('Error fertilizing plant:', error);
+      }
+    );
+  }
+
   // TODO
   undoWaterPlant(plant: Plant): void {
     console.log(`${plant.scientific_name} watering has been reverted!`);
@@ -181,6 +263,15 @@ export class CollectionComponent implements OnInit {
       Also sets up reactive form control for plantSearch with debounced
   */
   ngOnInit() {
+    this.getUserId();
+
+    if (this.userId) {
+      this.getFertilizeState();
+      // this.updateDisplayedColumns();
+    } else {
+      console.error('User ID is undefined');
+    }
+
     this.route.paramMap.subscribe((params) => {
       const id = params.get('id');
       if (id) {
@@ -199,6 +290,31 @@ export class CollectionComponent implements OnInit {
       startWith(''),
       debounceTime(300),
       switchMap((value) => this.searchPlants(value || ''))
+    );
+  }
+
+  updateDisplayedColumns() {
+    this.displayedColumns = [
+      'name',
+      'last_watered',
+      ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
+      'water',
+      'actions',
+    ];
+  }
+
+  // Get fertilizeState from the backend and set the toggle state
+  getFertilizeState(): void {
+    this.userService.getFertilizeState(this.userId).subscribe(
+      (response) => {
+        this.fertilizeState = response.fertilizeState; // Assign fertilizeState from response
+        // If fertilizeState is 1, enable the toggle; if it's 0, disable it
+        this.showFertilizeFlag = this.fertilizeState === 1; // Set toggle based on state
+        this.updateDisplayedColumns(); // Update columns when state is fetched
+      },
+      (error) => {
+        console.error('Error fetching fertilize state:', error);
+      }
     );
   }
 
@@ -252,8 +368,11 @@ export class CollectionComponent implements OnInit {
         common_name: common_name,
         quantity: 1,
         water: 'Water',
+        fertilize: 'Fertilize',
         last_watered: 'Today',
+        last_fertilized: 'Today',
         watered: false,
+        fertilized: false,
         id: this.nextPlantId++,
       });
     }
@@ -305,6 +424,7 @@ export class CollectionComponent implements OnInit {
           this.dataSource.data = response.plants.map((plant) => ({
             ...plant,
             times_watered: plant.times_watered ?? 0, // Ensure it's always a number
+            times_fertilized: plant.times_fertilized ?? 0, // Ensure it's always a number
           }));
           this.dataSource.paginator = this.paginator;
         } else {
@@ -437,6 +557,7 @@ export class CollectionComponent implements OnInit {
       common_name: plant.common_name,
       quantity: plant.quantity,
       last_watered: plant.last_watered || null,
+      last_fertilized: plant.last_fertilized || null,
     }));
 
     this.collectionService

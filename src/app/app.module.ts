@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
@@ -31,7 +31,7 @@ import { AuthInterceptor } from './auth.interceptor';
 import { NewsComponent } from './news/news.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // Native date functionality
-import {MatExpansionModule} from '@angular/material/expansion';
+import { MatExpansionModule } from '@angular/material/expansion';
 @NgModule({
   declarations: [
     AppComponent,
@@ -66,7 +66,8 @@ import {MatExpansionModule} from '@angular/material/expansion';
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatExpansionModule
+    MatExpansionModule,
+    MatSlideToggleModule,
   ],
   providers: [
     {
