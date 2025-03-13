@@ -71,7 +71,7 @@ router.get("/collection/:id/plants", authenticateToken, async (req, res) => {
 
     // If the user owns the collection, fetch the plants
     const [plants] = await db.query(
-      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, times_watered, deleted, is_custom
+      `SELECT id, collection_id, scientific_name, common_name, nickname, quantity, last_watered, last_fertilized, times_watered, deleted, is_custom
        FROM collection_plants
        WHERE collection_id = ? AND deleted = 0`,
       [collectionId]
@@ -711,5 +711,115 @@ router.get("/total-plants/:userId", authenticateToken, async (req, res) => {
   }
 });
 
+// PUT Fertilize plant
+router.put(
+  "/collection/:collectionId/fertilize-plant/:plantId",
+  authenticateToken,
+  async (req, res) => {
+    const { collectionId, plantId } = req.params;
+    const userId = req.user.userId; // Access the userId from req.user
+
+    if (!userId) {
+      return res.status(400).json({ error: "User not authenticated" });
+    }
+
+    const updateSql = `
+    UPDATE collection_plants cp
+    JOIN plant_collection pc ON cp.collection_id = pc.id
+    SET cp.last_fertilized = NOW(), cp.times_fertilized = cp.times_fertilized + 1
+    WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
+  `;
+
+    const insertHistorySql = `
+      INSERT INTO fertilize_history (fertilized_date, plant_id, user_id)
+    VALUES (NOW(), ?, ?)
+  `;
+
+    try {
+      const [updateResults] = await db.query(updateSql, [
+        collectionId,
+        plantId,
+        userId,
+      ]);
+
+      if (updateResults.affectedRows === 0) {
+        return res.status(404).json({
+          error:
+            "Plant not found in the collection or not authorized to update",
+        });
+      }
+
+      const [historyResults] = await db.query(insertHistorySql, [
+        plantId,
+        userId,
+      ]);
+
+      res.status(200).json({
+        success: true,
+        message: "Plant successfully fertilized and fertilizing event logged",
+        last_fertilized: new Date().toISOString(),
+        fertilizing_event_id: historyResults.insertId, // Return the ID of the new water history entry
+      });
+    } catch (err) {
+      console.error(
+        "Error updating last_fertilized or logging fertilizing event:",
+        err
+      );
+      res.status(500).json({
+        error: "Error updating plant fertilizing status or logging event",
+      });
+    }
+  }
+);
+
+// Route to fetch the fertilize state of a user
+router.get("/user/:userId/fertilize-state", async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const query = `SELECT fertilizeState FROM users WHERE id = ?`;
+
+    console.log("Executing query:", query, "with values:", [userId]);
+    const [results] = await db.query(query, [userId]);
+
+    console.log("Query results:", results);
+
+    if (results.length === 0) {
+      console.log("User not found");
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ fertilizeState: results[0].fertilizeState });
+  } catch (err) {
+    console.error("Error retrieving state:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// Update fertilizeState for a user
+router.put("/user/:userId/fertilize-state", async (req, res) => {
+  const { userId } = req.params; // Grab the userId from the URL
+  const { fertilizeState } = req.body;
+
+  console.log("Received userId:", userId);
+  console.log("Received fertilizeState:", fertilizeState);
+
+  // Check if fertilizeState is a valid value
+  if (fertilizeState === undefined || fertilizeState === null) {
+    return res.status(400).json({ error: "fertilizeState is required" });
+  }
+
+  try {
+    const toggleStateSql = `
+    UPDATE users SET fertilizeState = ? WHERE id = ?
+`;
+    // Make sure to pass the correct values to the query
+    const [result] = await db.query(toggleStateSql, [fertilizeState, userId]);
+    res.status(200).json(result);
+  } catch (err) {
+    console.error("Error executing query:", err);
+    res.status(500).json({ error: "Error updating fertilize state" });
+  }
+});
 
 module.exports = router;
