@@ -160,7 +160,6 @@
 .water-btn,
 .fertilize-btn {
   height: 8vh;
-  width: 18vw;
   // margin-bottom: 1em;
   border: 2px solid #011d85;
   border-radius: 4px;
@@ -284,11 +283,20 @@ table {
   }
 
   .fertilize-btn {
-    width: 36%;
+    width: 35%;
     font-size: 10px;
   }
 
   #toggleFertilize {
     margin-left: 60%;
+  }
+
+  .water-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adjust the space between buttons */
+  }
+  .nameCol {
+    min-width: 20vw !important;
   }
 }
