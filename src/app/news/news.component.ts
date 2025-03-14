@@ -13,6 +13,12 @@ export class NewsComponent implements OnInit {
   newUpdate = false;
   newsList = [
     {
+      id: 4,
+      title: 'Track Fertilizing - March 14',
+      content:
+        'You can now track the fertilization of your plants, just like you already track watering. In addition to several updates to the table, the option to toggle the visibility of the fertilization feature has been added, allowing you to hide or show it as needed.',
+    },
+    {
       id: 3,
       title: 'Total Plant Count - March 8',
       content: 'Displays count of all of your plants, frontend tweaks',
