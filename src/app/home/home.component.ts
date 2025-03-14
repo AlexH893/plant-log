@@ -172,6 +172,7 @@ export class HomeComponent {
     this.selectedNews = news;
     console.log('NewsComponent: Opening modal for news:', news);
     this.modalService.openNewsModal();
+    this.newUpdate = false;
 
     // Ensure that userId is a valid number
     const userId = this.authService.getUserInfo()?.id ?? null;

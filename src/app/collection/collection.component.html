@@ -101,13 +101,16 @@
               element.watered ? "check_circle" : "water_drop"
             }}</mat-icon>
           </button>
+          <!-- Fertilize Button -->
           <button
             *ngIf="showFertilizeFlag"
             class="fertilize-btn"
             mat-button
             (click)="fertilizePlant(element)"
           >
-            <mat-icon>eco</mat-icon>
+            <mat-icon>{{
+              element.fertilized ? "check_circle" : "eco"
+            }}</mat-icon>
           </button>
         </div>
       </td>
