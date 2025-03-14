@@ -1,22 +1,8 @@
-<div *ngIf="collection">
+<div *ngIf="collection" class="collection-header">
   <h2 class="collection-name">{{ collection.name }}</h2>
   <div class="plant-count">{{ plantCount }} plants</div>
   <p>Today's Date: {{ today | date : "MMM d" }}</p>
-  <mat-slide-toggle
-    id="toggleFertilize"
-    [(ngModel)]="showFertilizeFlag"
-    (change)="toggleFertilize($event)"
-  >
-    {{ showFertilizeFlag ? "Hide Fertilize" : "Show Fertilize" }}
-  </mat-slide-toggle>
-
-  <!-- <p>Created on: {{ collection.date_created | date }}</p> -->
-</div>
-<mat-divider></mat-divider>
-<div id="toast" class="toast">Plant added successfully!</div>
-
-<!-- Table of plants-->
-<!-- <mat-form-field class="filter-input">
+  <!-- <mat-form-field class="filter-input">
   <mat-label>Filter</mat-label>
   <input
     matInput
@@ -25,12 +11,24 @@
     #input
   />
 </mat-form-field> -->
+  <mat-slide-toggle
+    id="toggleFertilize"
+    [(ngModel)]="showFertilizeFlag"
+    (change)="toggleFertilize($event)"
+  >
+    {{ showFertilizeFlag ? "Hide Fertilize" : "Show Fertilize" }}
+  </mat-slide-toggle>
+</div>
+<mat-divider></mat-divider>
 
+<div id="toast" class="toast">Plant added successfully!</div>
+
+<!-- Table Container -->
 <div class="table-container">
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <!-- Name Column -->
     <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.8em">Name</th>
+      <th mat-header-cell *matHeaderCellDef class="nameCol">Name</th>
       <td mat-cell *matCellDef="let plant">
         {{ plant.nickname || plant.common_name }}
       </td>
@@ -38,77 +36,31 @@
 
     <!-- Last Watered Column -->
     <ng-container matColumnDef="last_watered">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.8em">
-        Last Watered
+      <th mat-header-cell *matHeaderCellDef>
+        <!-- Conditionally display column header based on fertilize flag -->
+        {{ showFertilizeFlag ? "Last Watered/Fertilized" : "Last Watered" }}
       </th>
       <td mat-cell *matCellDef="let plant">
-        {{ plant.last_watered | date : "MMM d, y" }}
+        {{ plant.last_watered | date : "MMM d" }}
+        <span *ngIf="showFertilizeFlag && plant.last_fertilized">
+          / Fertilized: {{ plant.last_fertilized | date : "MMM d" }}
+        </span>
       </td>
     </ng-container>
 
-    <!-- Last Fertilized Column (Hidden when toggle is OFF) -->
+    <!-- Last Fertilized Column -->
     <ng-container *ngIf="showFertilizeFlag" matColumnDef="last_fertilized">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.8em">
-        Last Fertilized
-      </th>
+      <th mat-header-cell *matHeaderCellDef>Last Fertilized</th>
       <td mat-cell *matCellDef="let plant">
-        {{ plant.last_fertilized | date : "MMM d, y" }}
+        {{ plant.last_fertilized | date : "MMM d" }}
       </td>
     </ng-container>
 
     <!-- Times Watered Column -->
     <ng-container matColumnDef="times_watered">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.8em">
-        Times Watered
-      </th>
-      <td mat-cell *matCellDef="let plant">
-        {{ plant.times_watered }}
-      </td>
+      <th mat-header-cell *matHeaderCellDef>Times Watered</th>
+      <td mat-cell *matCellDef="let plant">{{ plant.times_watered }}</td>
     </ng-container>
-
-    <!-- Water Column -->
-    <ng-container matColumnDef="water">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.9em">
-        Water / Fertilize
-      </th>
-      <td mat-cell *matCellDef="let element" style="width: 18vw">
-        <div
-          style="
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-            align-items: center;
-          "
-        >
-          <!-- Water Button -->
-          <button class="water-btn" mat-button (click)="waterPlant(element)">
-            {{ element.watered ? "Watered" : "Water" }}
-            <span class="material-icons">
-              {{ element.watered ? "check_circle" : "water_drop" }}
-            </span>
-          </button>
-
-          <!-- Fertilize Button (Hidden when toggle is OFF) -->
-          <button
-            *ngIf="showFertilizeFlag"
-            class="fertilize-btn"
-            mat-button
-            (click)="fertilizePlant(element)"
-          >
-            <!-- Fertilize -->
-            <span class="material-icons">eco</span>
-          </button>
-        </div>
-      </td>
-    </ng-container>
-
-    <!-- Fertilize Column -->
-    <!-- <ng-container matColumnDef="fertilize">
-      <th mat-header-cell *matHeaderCellDef style="font-size: 0.9em">
-        Fertilize
-      </th>
-      <td mat-cell *matCellDef="let element" style="width: 15%"></td>
-    </ng-container> -->
 
     <!-- Actions Column -->
     <ng-container matColumnDef="actions">
@@ -117,29 +69,59 @@
         <span [matMenuTriggerFor]="menu">
           <span class="material-icons"> more_vert </span>
         </span>
+
         <mat-menu #menu="matMenu">
           <button mat-menu-item (click)="editPlant(plant)">
             <mat-icon>edit</mat-icon>
+
             <span>Edit {{ plant.name }}</span>
           </button>
+
           <button mat-menu-item (click)="deletePlant(plant)">
             <mat-icon>delete</mat-icon>
+
             <span>Delete {{ plant.name }}</span>
           </button>
+
           <!-- Add more options here as needed -->
         </mat-menu>
+      </td>
+    </ng-container>
+
+    <!-- Water Column -->
+    <ng-container matColumnDef="water">
+      <th mat-header-cell *matHeaderCellDef>
+        {{ showFertilizeFlag ? "Water / Fertilize" : "Water" }}
+      </th>
+      <td mat-cell *matCellDef="let element">
+        <div class="water-actions">
+          <button class="water-btn" mat-button (click)="waterPlant(element)">
+            {{ element.watered ? "Watered" : "Water" }}
+            <mat-icon>{{
+              element.watered ? "check_circle" : "water_drop"
+            }}</mat-icon>
+          </button>
+          <button
+            *ngIf="showFertilizeFlag"
+            class="fertilize-btn"
+            mat-button
+            (click)="fertilizePlant(element)"
+          >
+            <mat-icon>eco</mat-icon>
+          </button>
+        </div>
       </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
-
   <mat-paginator
     [pageSizeOptions]="[10, 20, 50]"
     aria-label="Select page of plants"
   ></mat-paginator>
 </div>
+
 <mat-divider></mat-divider>
 
 <mat-accordion>
@@ -221,11 +203,12 @@
     <br /><br />
   </mat-expansion-panel>
 </mat-accordion>
+
 <div class="toolbar">
   <button (click)="home()" class="toolbar-btn">
-    <span class="material-icons"> home </span>
+    <mat-icon>home</mat-icon>
   </button>
   <button (click)="logout()" class="toolbar-btn">
-    <span class="material-icons"> logout </span>
+    <mat-icon>logout</mat-icon>
   </button>
 </div>

@@ -150,7 +150,7 @@ export class CollectionComponent implements OnInit {
   displayedColumns: string[] = [
     'name',
     'last_watered',
-    ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
+    // ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
     'water',
     'actions',
   ];
@@ -297,7 +297,7 @@ export class CollectionComponent implements OnInit {
     this.displayedColumns = [
       'name',
       'last_watered',
-      ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
+      // ...(this.showFertilizeFlag ? ['last_fertilized'] : []),
       'water',
       'actions',
     ];
