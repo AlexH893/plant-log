@@ -24,6 +24,7 @@ const routes: Routes = [
     component: CollectionComponent,
     canActivate: [AuthGuard], // Only accessible if authenticated
   },
+  { path: 'add-plant/:id', component: AddPlantComponent },
 
   // Public Routes
   { path: 'auth', component: AuthComponent }, // Login page (public)

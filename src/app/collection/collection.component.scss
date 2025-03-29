@@ -296,7 +296,311 @@ table {
     align-items: center;
     gap: 8px; /* Adjust the space between buttons */
   }
-  .nameCol {
-    min-width: 20vw !important;
+
+  .selected-plants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
   }
+
+  .selected-plants div {
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+  .add,
+  .remove {
+    height: 3vh;
+    width: 4vw;
+  }
+  .selected-plant-name {
+    font-size: 1.5em; // Increase the font size here
+  }
+
+  .add-plant-form {
+    margin: 0 auto;
+    width: 100%;
+    max-width: 50vw;
+    padding: 20px;
+  }
+  .example-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Adjusts spacing between items */
+  }
+
+  .clear,
+  .plant-btn {
+    position: relative;
+    background-color: #a8d5ba;
+    color: #2f4f4f;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+  }
+
+  .clear:active {
+    transform: scale(0.95); /* Shrink effect on tap */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
+  }
+  .plant-btn:active {
+    transform: scale(0.95); /* Shrink effect on tap */
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
+  }
+
+  .disabled {
+    cursor: default;
+  }
+
+  .invisible {
+    visibility: hidden;
+  }
+
+  .border {
+    border: 1px solid #000;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .h-40 {
+    height: 10rem;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .justify-center {
+    justify-content: center;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .absolute {
+    position: absolute;
+  }
+
+  .inset-0 {
+    inset: 0;
+  }
+
+  .border-4 {
+    border-width: 4px;
+  }
+
+  .border-black {
+    border-color: rgba(0, 0, 0, 1);
+  }
+
+  .bg-red-300 {
+    background-color: rgba(252, 165, 165, 1);
+  }
+
+  .px-6 {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .py-3 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+  }
+
+  .font-bold {
+    font-weight: bold;
+  }
+
+  .transition {
+    transition-property: all;
+  }
+
+  .duration-300 {
+    transition-duration: 0.3s;
+  }
+
+  .ease-out {
+    transition-timing-function: ease-out;
+  }
+
+  .plant-btn {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    height: 7vh;
+    width: 24vw;
+    margin-left: 20vw;
+    box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.2);
+    margin-right: 5vw;
+
+    & .button-text {
+      position: relative;
+    }
+  }
+
+  .water-btn,
+  .undo-btn {
+    cursor: pointer;
+    box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.3); /* Slightly deeper shadow */
+  }
+  .water-btn,
+  .fertilize-btn {
+    height: 8vh;
+    // margin-bottom: 1em;
+    border: 2px solid #011d85;
+    border-radius: 4px;
+    padding: 0.5em 1em;
+    background-color: #4caf50;
+
+    color: #c1dbff;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .water-btn:hover {
+    background-color: rgb(3, 132, 171);
+    color: white;
+  }
+
+  .undo-btn {
+    // margin-left: .5em;
+    height: 5vh;
+  }
+  .table-container {
+    overflow: auto; /* Enable scrolling */
+    display: block; /* Ensure the div behaves like a block container */
+    height: 67vh;
+  }
+
+  table {
+    width: 100%; /* Ensure the table stretches to full width */
+  }
+
+  /* Toast styling */
+  .toast {
+    visibility: hidden;
+    min-width: 250px;
+    background-color: #4f7a43; /* Green background */
+    color: white;
+    text-align: center;
+    padding: 16px;
+    border-radius: 8px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-size: 16px;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out, visibility 0.5s;
+  }
+
+  /* Show the toast */
+  .toast.show {
+    visibility: visible;
+    opacity: 0.8;
+  }
+  .custom-input {
+    border-bottom: 1px solid #000;
+    margin-bottom: 2em;
+  }
+  .plant-count {
+    margin-top: -1em;
+    margin-bottom: 1em;
+  }
+  .clear {
+    height: 7vh;
+  }
+  .clear:hover {
+    background-color: #8a6054; /* Change background color on hover */
+    color: #fff; /* Change text color on hover */
+    transform: scale(1.05); /* Slightly enlarge the button */
+  }
+
+  .collection-name {
+    padding-top: 2vh;
+  }
+  .filter-input {
+    margin-top: 1em;
+  }
+
+  .toolbar-btn {
+    cursor: pointer;
+    border: 0;
+    margin: 8px;
+    padding: 8px;
+    border-radius: 3px;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.8);
+    background: #333;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
+  }
+  .toolbar {
+    position: absolute;
+    right: 5vw;
+  }
+  .btns {
+    display: flex;
+    justify-content: center;
+  }
+
+  .input-with-button {
+    display: flex;
+    align-items: center;
+  }
+
+  .toolbar {
+    position: fixed;
+    left: 1vw;
+    width: 30vw;
+    bottom: 7vh;
+    display: flex;
+    flex-direction: row; /* Stack buttons vertically */
+    gap: 0.3rem; /* Adds space between buttons */
+    opacity: 50%;
+  }
+
+  .mat-mdc-table .mdc-data-table__row {
+    // background-color: #ddfcdd;
+    height: 10vh;
+  }
+
+  .fertilize-btn {
+    width: 35%;
+    font-size: 10px;
+  }
+
+  #toggleFertilize {
+    margin-left: 60%;
+  }
+
+  .water-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Adjust the space between buttons */
+  }
+
+.mat-table{
+    background-color: #ff2d2d !important;
+  }
+
+
+
+}
+::ng-deep .mat-row:hover {
+  background: #b22f2f;
 }

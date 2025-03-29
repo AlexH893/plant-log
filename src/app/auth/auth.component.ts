@@ -2,6 +2,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service'; // Import AuthService
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-auth',
@@ -16,7 +17,8 @@ export class AuthComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private authService: AuthService // Inject AuthService
+    private authService: AuthService,
+    private snackBar: MatSnackBar
   ) {
     this.loginForm = this.fb.group({
       username: [
@@ -55,10 +57,22 @@ export class AuthComponent implements OnInit {
           console.error('Login error:', err);
           this.errorMessage =
             err.error?.error || 'An error occurred during login.';
+            this.showToast(this.errorMessage);
+
         },
       });
     }
   }
+
+  showToast(message: string): void {
+    this.snackBar.open(message, 'Close', {
+      duration: 3000,
+      panelClass: ['error-toast'],
+      horizontalPosition: 'center',
+      verticalPosition: 'top',
+    });
+  }
+
 
   goToSignup(): void {
     this.router.navigate(['/signup']); // Navigate to the signup route

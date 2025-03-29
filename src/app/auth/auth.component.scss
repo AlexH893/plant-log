@@ -111,4 +111,11 @@
   .input {
     width: 40vw;
   }
+
+  .error-toast {
+    background: #f44336 !important;
+    color: white !important;
+    text-align: center;
+    font-weight: bold;
+  }
 }

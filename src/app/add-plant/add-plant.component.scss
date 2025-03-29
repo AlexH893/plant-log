@@ -252,3 +252,59 @@
   transform: scale(0.95); /* Shrink effect on tap */
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.15); /* Subtle shadow reduction */
 }
+/* iPhone XR, 11 (6.1-inch screen) */
+@media only screen and (min-device-width: 380px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
+  .btns {
+    margin-top: 4vh;
+    margin-right: 13vw;
+  }
+
+  .plant-btn {
+    position: relative;
+    padding: 0.75rem 1.5rem;
+    font-weight: bold;
+    cursor: pointer;
+    height: 10vh;
+    width: 35vw;
+    box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.2);
+  }
+
+  .clear {
+    position: relative;
+    height: 8vh;
+    width: 100%;
+    background-color: #a8d5ba;
+    color: #2f4f4f;
+    border: none;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    transition: transform 0.1s ease, box-shadow 0.2s ease;
+  }
+
+  .close-btn {
+    background: none;
+    border: 2px solid #333;
+    border-radius: 50%;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    position: relative;
+    margin-top: 2vh;
+    left: 85%;
+  }
+
+  .close-btn:hover {
+    color: #ff0000;
+  }
+}
