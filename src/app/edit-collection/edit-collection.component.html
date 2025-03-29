@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <button class="close-btn" (click)="closeModal()">X</button>
+</div>
+<h3>Editing Plant:</h3>
+
+<h3>Last watered:</h3>
+
+<input
+  #plantNameInput
+  class="custom-input"
+  matInput
+  placeholder="Edit Collection {{collection.}}"
+/>
+<br />
+
+<h3>Edit Collection Name</h3>
+<input
+  matInput
+  [matDatepicker]="picker"
+  placeholder="Select Date"
+  name="lastWatered"
+/>
+<mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+<mat-datepicker #picker></mat-datepicker>
+
+<button class="clear" mat-raised-button color="warn">Confirm</button>

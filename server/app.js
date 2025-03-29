@@ -8,7 +8,6 @@ const axios = require("axios");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const path = require("path");
-import { environment } from "src/environments/environment"; // Generic import
 // Prod
 const db = mysql.createPool({
   host: process.env.DB_HOST,
