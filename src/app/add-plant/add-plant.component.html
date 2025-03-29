@@ -1,13 +1,9 @@
-<h2>Add Plants</h2>
+<button class="close-btn" (click)="closeModal()">X</button>
+<h2>Add Plants to Collection</h2>
 
-<mat-list role="list">
-  <h3>Current Plants</h3>
-  <mat-list-item role="listitem">Item 1</mat-list-item>
-  <mat-list-item role="listitem">Item 2</mat-list-item>
-  <mat-list-item role="listitem">Item 3</mat-list-item>
-</mat-list>
+
+<h2 class="collection-name">{{ collection?.name }}</h2>
 <mat-divider></mat-divider>
-
 <form class="example-form">
   <mat-form-field>
     <input
@@ -16,33 +12,61 @@
       [formControl]="plantSearch"
       [matAutocomplete]="auto"
     />
-    <mat-autocomplete #auto="matAutocomplete" (optionSelected)="onPlantSelected($event)">
+    <mat-autocomplete
+      #auto="matAutocomplete"
+      (optionSelected)="onPlantSelected($event)"
+    >
       <mat-option *ngFor="let plant of filteredOptions | async" [value]="plant">
         {{ plant }}
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-
+  <!-- Custom plant input -->
+  <div class="input-with-button">
+    <mat-form-field>
+      <input
+        class="custom-input"
+        matInput
+        placeholder="Or add your own"
+        [formControl]="customPlantInput"
+        (keyup.enter)="addCustomPlant()"
+      />
+    </mat-form-field>
+    <button mat-icon-button matSuffix (click)="addCustomPlant()">
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
   <div *ngIf="selectedPlants.length > 0">
-    <h3>Selected Plants</h3>
+    <h3>Selected Plants to be added</h3>
     <div *ngFor="let plant of selectedPlants">
-      {{ plant.name }} - Quantity: {{ plant.quantity }}
-      <button mat-button (click)="adjustQuantity(plant.name, 1)">+</button>
-      <button mat-button (click)="adjustQuantity(plant.name, -1)">-</button>
+      {{ plant.scientific_name }} - Quantity: {{ plant.quantity }}
+      <button mat-button (click)="adjustQuantity(plant.scientific_name, 1)">
+        +
+      </button>
+      <button mat-button (click)="adjustQuantity(plant.scientific_name, -1)">
+        -
+      </button>
     </div>
   </div>
+  <div class="btns">
+    <button
+      class="plant-btn"
+      mat-raised-button
+      (click)="addPlants(collectionId)"
+    >
+      Add
+      <span class="material-icons"> add </span>
+    </button>
 
-
-  <div class="button-container">
-  <button class="plant-btn" mat-button (click)="addPlant()">
-    <span class="button-background"></span>
-    <span class="button-border"></span>
-    <span class="button-text">Add Plants</span>
-  </button>
-</div>
-  <button class="clear" mat-raised-button color="warn" (click)="clearSelections()">
-    Clear Selections
-  </button>
+    <button
+      class="clear"
+      mat-raised-button
+      color="warn"
+      (click)="clearSelections()"
+    >
+      Clear
+      <span class="material-icons"> clear </span>
+    </button>
+  </div>
 </form>
-<br><br>
-
+<br /><br />

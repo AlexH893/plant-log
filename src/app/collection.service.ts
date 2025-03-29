@@ -44,4 +44,8 @@ export class CollectionService {
       })
     );
   }
+
+  getCollectionById(collectionId: number): Observable<any> {
+    return this.http.get<any>(`${environment.apiUrl}/collection/${collectionId}`);
+  }
 }
