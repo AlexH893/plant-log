@@ -50,10 +50,10 @@
     </div>
   </div>
 
-  <div class="toolbar">
+  <div class="home-toolbar">
     <button
     (click)="openNewsModal(userId)"
-    [ngClass]="{'new-update': newUpdate}"  
+    [ngClass]="{'new-update': newUpdate}"
   >      <span class="material-icons"> campaign </span>
       <span *ngIf="newUpdate" class="notification-icon">🔔</span>
     </button>
