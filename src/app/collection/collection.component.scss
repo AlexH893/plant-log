@@ -435,20 +435,15 @@ table {
     transition-timing-function: ease-out;
   }
 
-  .plant-btn {
-    position: relative;
-    padding: 0.75rem 1.5rem;
-    font-weight: bold;
+  .add-plant-btn {
+    background-color: rgb(109, 149, 88);
     cursor: pointer;
-    height: 7vh;
-    width: 24vw;
-    margin-left: 20vw;
+    height: 5vh;
+    width: 32vw;
     box-shadow: 0px 3px 9px rgba(0, 0, 0, 0.2);
-    margin-right: 5vw;
-
-    & .button-text {
-      position: relative;
-    }
+    right: 15%;
+    margin-top: -25px;
+    margin-bottom: 5px;
   }
 
   .water-btn,
@@ -567,7 +562,7 @@ table {
     position: fixed;
     left: 1vw;
     width: 30vw;
-    bottom: 7vh;
+    bottom: 3vh;
     display: flex;
     flex-direction: row; /* Stack buttons vertically */
     gap: 0.3rem; /* Adds space between buttons */
@@ -594,12 +589,9 @@ table {
     gap: 8px; /* Adjust the space between buttons */
   }
 
-.mat-table{
+  .mat-table {
     background-color: #ff2d2d !important;
   }
-
-
-
 }
 ::ng-deep .mat-row:hover {
   background: #b22f2f;

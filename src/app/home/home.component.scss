@@ -54,7 +54,7 @@ button:focus:not(:active) span::after {
   background: #41a85f;
   width: 35vw;
   margin-bottom: 2em;
-  height: 7vh;
+  height: 9vh;
 }
 
 .collection-item {
@@ -106,7 +106,7 @@ h3 {
   margin-left: 2em;
 }
 
-.toolbar {
+.home-toolbar {
   position: fixed;
   right: 5vw;
   bottom: 7vh;
@@ -168,7 +168,7 @@ h3 {
     margin-bottom: 5vh;
   }
 
-  .toolbar {
+  .home-toolbar {
     position: fixed;
     right: 5vw;
     bottom: 7vh;
@@ -196,22 +196,21 @@ h3 {
   }
 
   /* Define the jump animation */
-@keyframes jump {
-  0% {
-    transform: translateY(0);
+  @keyframes jump {
+    0% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-5px); // jump height
+    }
+    100% {
+      transform: translateY(0);
+    }
   }
-  50% {
-    transform: translateY(-5px); // jump height
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 
-.toolbar button.new-update {
-  animation: jump 1.5s ease-in-out infinite; // apply animation
-}
-
+  .home-toolbar button.new-update {
+    animation: jump 1.5s ease-in-out infinite; // apply animation
+  }
 }
 .notification-icon {
   position: absolute;
