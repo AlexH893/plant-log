@@ -46,7 +46,7 @@ const getTimestamp = () => {
 // Self-pinging function
 const pingServer = async () => {
   try {
-    await axios.get(`https://plant-log.onrender.com/api/keep-alive`);
+    await axios.get(`https://plant-log.onrender.com/keep-alive`);
     console.log(`[${getTimestamp()}] Self keep-alive ping sent`);
   } catch (error) {
     console.error(`[${getTimestamp()}] Keep-alive error:`, error.message);
