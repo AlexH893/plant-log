@@ -576,7 +576,7 @@ table {
   }
 
   .fertilize-btn {
-    width: 35%;
+    width: 40%;
     font-size: 10px;
   }
 
@@ -596,4 +596,7 @@ table {
 }
 ::ng-deep .mat-row:hover {
   background: #b22f2f;
+}
+.days-ago-label {
+  font-size: 0.7em;
 }
