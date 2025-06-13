@@ -42,12 +42,17 @@
       <th mat-header-cell *matHeaderCellDef>
         <!-- Conditionally dzisplay column header based on fertilize flag -->
         {{ showFertilizeFlag ? "Last Watered" : "Last Watered" }}
+        <!-- Num of days ago goes here -->
       </th>
       <td mat-cell *matCellDef="let plant">
         {{ plant.last_watered | date : "MMM d" }}
+
         <span *ngIf="showFertilizeFlag && plant.last_fertilized">
           / Fertilized: {{ plant.last_fertilized | date : "MMM d" }}
         </span>
+        <div class="days-ago-label">
+          {{ getDaysAgo(plant.last_watered) }}
+        </div>
       </td>
     </ng-container>
 

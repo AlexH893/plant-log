@@ -411,4 +411,13 @@ export class CollectionComponent implements OnInit {
 
     this.modalService.openAddPlantModal(this.collectionId.toString());
   }
+
+  getDaysAgo(dateString: string): string {
+    if (!dateString) return '';
+    const today = new Date();
+    const lastDate = new Date(dateString);
+    const diffTime = today.getTime() - lastDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
+  }
 }
