@@ -418,6 +418,11 @@ export class CollectionComponent implements OnInit {
     const lastDate = new Date(dateString);
     const diffTime = today.getTime() - lastDate.getTime();
     const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays === 0) {
+      return 'TODAY';
+    }
+
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   }
 }
