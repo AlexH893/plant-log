@@ -425,4 +425,15 @@ export class CollectionComponent implements OnInit {
 
     return `${diffDays} day${diffDays !== 1 ? 's' : ''} ago`;
   }
+
+  isWateredToday(dateString: string): boolean {
+    if (!dateString) return false;
+    const today = new Date();
+    const lastDate = new Date(dateString);
+    return (
+      today.getFullYear() === lastDate.getFullYear() &&
+      today.getMonth() === lastDate.getMonth() &&
+      today.getDate() === lastDate.getDate()
+    );
+  }
 }
