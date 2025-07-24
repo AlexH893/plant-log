@@ -6,6 +6,7 @@ import { CollectionComponent } from './collection/collection.component';
 import { AuthComponent } from './auth/auth.component';
 import { SignupComponent } from './signup/signup.component';
 import { AuthGuard } from './auth.guard';
+import { PublicGuard } from './public-guard.guard';
 
 const routes: Routes = [
   // Protected Routes
@@ -26,9 +27,17 @@ const routes: Routes = [
   },
   { path: 'add-plant/:id', component: AddPlantComponent },
 
-  // Public Routes
-  { path: 'auth', component: AuthComponent }, // Login page (public)
-  { path: 'signup', component: SignupComponent }, // Signup page (public)
+  // Public Routes (only when NOT authenticated)
+  {
+    path: 'auth',
+    component: AuthComponent,
+    canActivate: [PublicGuard],
+  },
+  {
+    path: 'signup',
+    component: SignupComponent,
+    canActivate: [PublicGuard],
+  },
 
   // Default Route
   { path: '', redirectTo: '/auth', pathMatch: 'full' }, // Default to auth (login)
