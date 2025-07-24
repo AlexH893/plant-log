@@ -1,35 +1,61 @@
-/* General Styles */
+h3 {
+  margin-top: -2vh;
+}
+
+h4 {
+  margin-top: -3vh;
+}
+
+.collections {
+  list-style-type: none;
+}
+
+/* Buttons */
 button {
   cursor: pointer;
   border: 0;
-  margin: 8px;
-  padding: 8px;
-  border-radius: 3px;
+  padding: 8px 12px;
+  border-radius: 4px;
   font-size: 15px;
-  color: rgba(255, 255, 255, 0.8);
-  background: #333;
+  color: rgba(255, 255, 255, 0.9);
+  background-color: #333;
   position: relative;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   overflow: hidden;
-  box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.3);
 }
 
-span {
-  display: block;
+.plant-btn {
+  margin-bottom: 0.5em;
+  width: 10vw;
+  height: 8vh;
+}
+
+.mat-mdc-form-field {
+  width: 300px !important;
+  --mat-mdc-form-field-floating-label-scale: 0.75;
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 0;
+  text-align: left;
+}
+
+button span {
   position: relative;
   z-index: 1;
+  display: block;
 }
 
-span::after {
+button span::after {
   content: "";
   position: absolute;
   z-index: -1;
-  top: calc(50% - 15px);
-  left: calc(50% - 15px);
+  top: 50%;
+  left: 50%;
   background: rgba(255, 255, 255, 0.7);
   width: 30px;
   height: 30px;
-  border-radius: 100%;
-  transform: scale(0);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) scale(0);
 }
 
 button:focus:not(:active) span::after {
@@ -50,54 +76,94 @@ button:focus:not(:active) span::after {
   }
 }
 
+/* Create Collection Button */
 .create-collection {
-  background: #41a85f;
-  width: 35vw;
+  background-color: #41a85f;
+  height: 10vh;
+  width: 15vw;
   margin-bottom: 2em;
-  height: 9vh;
+  font-weight: bold;
 }
 
+/* Collection Item Styles */
 .collection-item {
   cursor: pointer;
   border: 1px solid #ccc;
   border-radius: 8px;
-  padding: 1rem;
-  height: 12vh;
-  transition: all 0.3s ease;
-  background-color: #fff;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  text-align: center;
+  padding: 0.8rem;
+  width: 100%;
+  min-height: 90px;
+  max-width: 300px;
+  background: #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 25vw;
-  margin-bottom: 2vh;
-}
-
-.collection-name {
-  font-size: 1.5rem;
-}
-
-.collections {
-  list-style-type: none;
-}
-
-.container {
-  display: flex;
-  flex-direction: column-reverse;
-  align-items: center;
+  transition: transform 0.2s ease;
   text-align: center;
+  margin-bottom: 2.5vh;
 }
 
-h2,
-.create-collection,
-.list-form,
+.totalPlantCount {
+  margin-bottom: -2em;
+  margin-top: -2em;
+}
+
+.collection-item:hover {
+  transform: translateY(-3px);
+}
+
+/* Collection Name */
+.collection-name {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #333;
+  word-break: break-word;
+  margin-bottom: 0.3rem;
+}
+
+/* Collection Grid */
 .collection-list {
-  text-align: center; /* Centers text inside elements */
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  list-style: none;
 }
 
+/* Toolbar */
+.home-toolbar {
+  position: fixed;
+  right: 5vw;
+  bottom: 7vh;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+/* Form */
+.form {
+  --main-color: #323232;
+  background: #f2f2f2;
+  border: 2px solid var(--main-color);
+  border-radius: 5px;
+  box-shadow: 4px 4px var(--main-color);
+  padding: 20px;
+  margin: 5vh auto;
+  width: 90%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Heading Styles */
 h2 {
+  text-align: center;
   margin-top: 2vh;
 }
 
@@ -106,123 +172,82 @@ h3 {
   margin-left: 2em;
 }
 
-.home-toolbar {
-  position: fixed;
-  right: 5vw;
-  bottom: 7vh;
-  display: flex;
-  flex-direction: column; /* Stack buttons vertically */
-  gap: 0.3rem; /* Adds space between buttons */
+/* Notification */
+.notification-icon {
+  position: absolute;
+  top: -2px;
+  right: -4px;
+  background-color: #fa4545d4;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  font-size: 12px;
+  text-align: center;
+  line-height: 20px;
+  opacity: 0.75;
 }
 
-/* Collection List Styles with Grid Layout */
-.collection-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Create 3 equal columns */
-  padding: 1rem;
-  justify-items: center; /* Centers items within each grid cell */
-  width: 100%; /* Ensure collection list takes full width */
-}
-
-/* Media Queries for Responsive Layout */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
-  .collection-list {
-    grid-template-columns: repeat(
-      2,
-      1fr
-    ); /* 2 items per row on medium screens */
-  }
-}
-
-.form {
-  --input-focus: #2d8cf0;
-  --font-color: #323232;
-  --font-color-sub: #666;
-  --bg-color: #fff;
-  --main-color: #323232;
-  padding: 20px;
-  background: lightgrey;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 20px;
-  border-radius: 5px;
-  border: 2px solid var(--main-color);
-  box-shadow: 4px 4px var(--main-color);
-  width: 50%;
-  margin-top: 5vh;
-  margin-left: 20vw;
-}
-
-/* iPhone XR, 11 (6.1-inch screen) */
-@media only screen and (min-device-width: 380px) and (max-device-width: 896px) and (-webkit-min-device-pixel-ratio: 2) {
-  .form {
-    margin: auto;
-    width: 80vw;
-    margin-top: 5vh;
-  }
-
-  .totalPlantCount {
-    margin-top: -3vh;
-    margin-bottom: 5vh;
-  }
-
-  .home-toolbar {
-    position: fixed;
-    right: 5vw;
-    bottom: 7vh;
-    display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    gap: 0.3rem; /* Adds space between buttons */
-  }
-
-  .collection-list {
-    margin-top: -7vh;
-    width: 30vw;
-    margin-right: 20vw;
-  }
-  .collection-item {
+  .create-collection {
+    width: 50%;
     height: 10vh;
-    width: 45vw;
-    margin-bottom: 1vh;
+  }
+
+  .collection-item {
+    width: 140%;
+    height: auto;
+    max-width: 150%;
+    margin-bottom: 1em;
+  }
+
+  .collection-list {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    padding: 1rem;
+    gap: 1rem;
   }
 
   .collection-name {
+    margin-top: 1px;
     font-size: 1.1rem;
   }
-  .date {
-    font-size: 0.8rem;
+
+  .home-toolbar {
+    right: 4vw;
+    bottom: 6vh;
   }
 
-  /* Define the jump animation */
-  @keyframes jump {
-    0% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-5px); // jump height
-    }
-    100% {
-      transform: translateY(0);
-    }
+  /* Form */
+  .form {
+    --main-color: #323232;
+    background: #f2f2f2;
+    border: 2px solid var(--main-color);
+    border-radius: 5px;
+    box-shadow: 4px 4px var(--main-color);
+    padding: 20px;
+    margin: 5vh auto;
+    width: 85%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
   }
 
-  .home-toolbar button.new-update {
-    animation: jump 1.5s ease-in-out infinite; // apply animation
+  .plant-btn {
+    margin-bottom: 0.5em;
+    width: 20vw;
+    height: 9vh;
   }
 }
-.notification-icon {
-  position: absolute;
-  top: -1px;
-  right: -2.5px;
-  background-color: rgba(250, 69, 69, 0.831);
-  color: white;
-  border-radius: 70%;
-  width: 21px;
-  height: 21px;
-  text-align: center;
-  font-size: 12px;
-  line-height: 20px;
-  opacity: 75%;
+
+//
+
+@media (max-width: 395px) {
+  .collection-item {
+    width: 70%;
+    height: auto;
+    max-width: 150%;
+    margin-bottom: 1em;
+  }
 }
