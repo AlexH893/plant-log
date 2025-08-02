@@ -11,6 +11,7 @@ const API_KEY = "LkRMANX6QnypQ4JbiHoGbnuW0dmigllDPnf3WeBs2RJvAqYYAL";
 require("dotenv").config();
 
 const authenticateToken = require("../src/authenticateToken.js");
+const { from } = require("rxjs");
 
 // GET Route to search for plants by name
 router.get("/plants", async (req, res) => {
@@ -127,55 +128,84 @@ router.get("/plant/:id", async (req, res) => {
 });
 
 // PUT Water plant
+// PUT Water plant (uses global plant.id for history)
 router.put(
-  "/collection/:collectionId/plant/:plantId",
+  "/collection/:collectionId/plant/:plantInstanceId",
   authenticateToken,
   async (req, res) => {
-    const { collectionId, plantId } = req.params;
-    const userId = req.user.userId; // Access the userId from req.user
+    const { collectionId, plantInstanceId } = req.params; // plantInstanceId = collection_plants.id
+    const userId = req.user.userId;
 
     if (!userId) {
       return res.status(400).json({ error: "User not authenticated" });
     }
 
-    const updateSql = `
-    UPDATE collection_plants cp
-    JOIN plant_collection pc ON cp.collection_id = pc.id
-    SET cp.last_watered = NOW(), cp.times_watered = cp.times_watered + 1
-    WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
-  `;
-
-    const insertHistorySql = `
-      INSERT INTO water_history (watered_date, plant_id, user_id)
-    VALUES (NOW(), ?, ?)
-  `;
-
+    let conn;
     try {
-      const [updateResults] = await db.query(updateSql, [
-        collectionId,
-        plantId,
-        userId,
-      ]);
+      conn = await db.getConnection();
+      await conn.beginTransaction();
 
-      if (updateResults.affectedRows === 0) {
+      // 1) Find the real global plant.id for this instance, and verify ownership
+      const [rows] = await conn.query(
+        `
+        SELECT cp.plant_id
+        FROM collection_plants cp
+        JOIN plant_collection pc ON cp.collection_id = pc.id
+        WHERE cp.collection_id = ? AND cp.id = ? AND cp.deleted = 0 AND pc.user_id = ?
+        FOR UPDATE
+        `,
+        [collectionId, plantInstanceId, userId]
+      );
+
+      if (rows.length === 0) {
+        await conn.rollback();
         return res.status(404).json({
           error:
             "Plant not found in the collection or not authorized to update",
         });
       }
 
-      const [historyResults] = await db.query(insertHistorySql, [
-        plantId,
-        userId,
-      ]);
+      const realPlantId = rows[0].plant_id;
+
+      // 2) Update the instance row (collection_plants)
+      const [updateResults] = await conn.query(
+        `
+        UPDATE collection_plants cp
+        JOIN plant_collection pc ON cp.collection_id = pc.id
+        SET cp.last_watered = NOW(),
+            cp.times_watered = cp.times_watered + 1
+        WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
+        `,
+        [collectionId, plantInstanceId, userId]
+      );
+
+      if (updateResults.affectedRows === 0) {
+        await conn.rollback();
+        return res.status(404).json({
+          error:
+            "Plant not found in the collection or not authorized to update",
+        });
+      }
+
+      // 3) Insert water history using the GLOBAL plant.id
+      const [historyResults] = await conn.query(
+        `
+        INSERT INTO water_history (watered_date, plant_id, user_id)
+        VALUES (NOW(), ?, ?)
+        `,
+        [realPlantId, userId]
+      );
+
+      await conn.commit();
 
       res.status(200).json({
         success: true,
         message: "Plant successfully watered and watering event logged",
         last_watered: new Date().toISOString(),
-        watering_event_id: historyResults.insertId, // Return the ID of the new water history entry
+        watering_event_id: historyResults.insertId,
       });
     } catch (err) {
+      if (conn) await conn.rollback();
       console.error(
         "Error updating last_watered or logging watering event:",
         err
@@ -183,6 +213,8 @@ router.put(
       res.status(500).json({
         error: "Error updating plant watering status or logging event",
       });
+    } finally {
+      if (conn) conn.release();
     }
   }
 );
@@ -713,54 +745,79 @@ router.get("/total-plants/:userId", authenticateToken, async (req, res) => {
 
 // PUT Fertilize plant
 router.put(
-  "/collection/:collectionId/fertilize-plant/:plantId",
+  "/collection/:collectionId/fertilize-plant/:plantInstanceId",
   authenticateToken,
   async (req, res) => {
-    const { collectionId, plantId } = req.params;
-    const userId = req.user.userId; // Access the userId from req.user
+    const { collectionId, plantInstanceId } = req.params;
+    const userId = req.user.userId;
 
     if (!userId) {
       return res.status(400).json({ error: "User not authenticated" });
     }
 
-    const updateSql = `
-    UPDATE collection_plants cp
-    JOIN plant_collection pc ON cp.collection_id = pc.id
-    SET cp.last_fertilized = NOW(), cp.times_fertilized = cp.times_fertilized + 1
-    WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
-  `;
-
-    const insertHistorySql = `
-      INSERT INTO fertilize_history (fertilized_date, plant_id, user_id)
-    VALUES (NOW(), ?, ?)
-  `;
-
+    let conn;
     try {
-      const [updateResults] = await db.query(updateSql, [
-        collectionId,
-        plantId,
-        userId,
-      ]);
+      conn = await db.getConnection();
+      await conn.beginTransaction();
 
-      if (updateResults.affectedRows === 0) {
+      const [rows] = await conn.query(
+        `
+        SELECT cp.plant_id
+        FROM collection_plants cp
+        JOIN plant_collection pc ON cp.collection_id = pc.id
+        WHERE cp.collection_id = ? AND cp.id = ? AND cp.deleted = 0 AND pc.user_id = ?
+        FOR UPDATE
+        `,
+        [collectionId, plantInstanceId, userId]
+      );
+
+      if (rows.length === 0) {
+        await conn.rollback();
         return res.status(404).json({
           error:
             "Plant not found in the collection or not authorized to update",
         });
       }
 
-      const [historyResults] = await db.query(insertHistorySql, [
-        plantId,
-        userId,
-      ]);
+      const realPlantId = rows[0].plant_id;
+
+      const [updateResults] = await conn.query(
+        `
+        UPDATE collection_plants cp
+        JOIN plant_collection pc ON cp.collection_id = pc.id
+        SET cp.last_fertilized = NOW(),
+            cp.times_fertilized = cp.times_fertilized + 1
+        WHERE cp.collection_id = ? AND cp.id = ? AND pc.user_id = ?
+        `,
+        [collectionId, plantInstanceId, userId]
+      );
+
+      if (updateResults.affectedRows === 0) {
+        await conn.rollback();
+        return res.status(404).json({
+          error:
+            "Plant not found in the collection or not authorized to update",
+        });
+      }
+
+      const [historyResults] = await conn.query(
+        `
+        INSERT INTO fertilize_history (fertilized_date, plant_id, user_id)
+        VALUES (NOW(), ?, ?)
+        `,
+        [realPlantId, userId]
+      );
+
+      await conn.commit();
 
       res.status(200).json({
         success: true,
         message: "Plant successfully fertilized and fertilizing event logged",
         last_fertilized: new Date().toISOString(),
-        fertilizing_event_id: historyResults.insertId, // Return the ID of the new water history entry
+        fertilizing_event_id: historyResults.insertId,
       });
     } catch (err) {
+      if (conn) await conn.rollback();
       console.error(
         "Error updating last_fertilized or logging fertilizing event:",
         err
@@ -768,6 +825,8 @@ router.put(
       res.status(500).json({
         error: "Error updating plant fertilizing status or logging event",
       });
+    } finally {
+      if (conn) conn.release();
     }
   }
 );
@@ -821,5 +880,145 @@ router.put("/user/:userId/fertilize-state", async (req, res) => {
     res.status(500).json({ error: "Error updating fertilize state" });
   }
 });
+
+// PUT move plant to another collection (move-in-place, keep same collection_plants.id)
+router.put(
+  "/collection/:fromCollectionId/plant/:plantInstanceId/move/:toCollectionId",
+  authenticateToken,
+  async (req, res) => {
+    const { fromCollectionId, plantInstanceId, toCollectionId } = req.params;
+    const userId = req.user.userId;
+
+    let conn;
+    try {
+      // 1) Ownership check (both collections belong to user)
+      const [owned] = await db.query(
+        `SELECT id FROM plant_collection WHERE id IN (?, ?) AND user_id = ?`,
+        [fromCollectionId, toCollectionId, userId]
+      );
+      if (owned.length < 2) {
+        return res
+          .status(403)
+          .json({ error: "User doesn't own both collections." });
+      }
+
+      conn = await db.getConnection();
+      await conn.beginTransaction();
+
+      // 2) Load source row S (the instance being moved)
+      const [srcRows] = await conn.query(
+        `SELECT *
+           FROM collection_plants
+          WHERE id = ? AND collection_id = ? AND deleted = 0
+          FOR UPDATE`,
+        [plantInstanceId, fromCollectionId]
+      );
+      if (srcRows.length === 0) {
+        await conn.rollback();
+        return res
+          .status(404)
+          .json({ error: "Plant not found in the source collection." });
+      }
+      const S = srcRows[0];
+
+      // 3) Check for an existing destination row D with the same plant_id in target collection
+      const [destRows] = await conn.query(
+        `SELECT *
+           FROM collection_plants
+          WHERE collection_id = ? AND plant_id = ?
+          FOR UPDATE`,
+        [toCollectionId, S.plant_id]
+      );
+
+      if (destRows.length > 0) {
+        // 4a) Merge into S, remove D, then move S to the destination
+        const D = destRows[0];
+
+        // Merge policy:
+        // - times_* : sum
+        // - last_* : most recent non-null
+        // - nickname/common/scientific/quantity/is_custom : taking from S (the one being moved)
+        const times_watered = (S.times_watered || 0) + (D.times_watered || 0);
+        const times_fertilized =
+          (S.times_fertilized || 0) + (D.times_fertilized || 0);
+
+        // pick most recent timestamp (if any)
+        const lastWatered =
+          S.last_watered && D.last_watered
+            ? new Date(S.last_watered) > new Date(D.last_watered)
+              ? S.last_watered
+              : D.last_watered
+            : S.last_watered || D.last_watered || null;
+
+        const lastFertilized =
+          S.last_fertilized && D.last_fertilized
+            ? new Date(S.last_fertilized) > new Date(D.last_fertilized)
+              ? S.last_fertilized
+              : D.last_fertilized
+            : S.last_fertilized || D.last_fertilized || null;
+
+        // Update S with merged data (still in source collection for the moment)
+        await conn.query(
+          `UPDATE collection_plants
+              SET common_name      = ?,
+                  scientific_name  = ?,
+                  nickname         = ?,
+                  quantity         = ?,
+                  times_watered    = ?,
+                  times_fertilized = ?,
+                  last_watered     = ?,
+                  last_fertilized  = ?,
+                  is_custom        = ?
+            WHERE id = ?`,
+          [
+            S.common_name,
+            S.scientific_name,
+            S.nickname,
+            S.quantity,
+            times_watered,
+            times_fertilized,
+            lastWatered,
+            lastFertilized,
+            S.is_custom,
+            S.id,
+          ]
+        );
+
+        // Remove destination row D to clear the unique constraint
+        await conn.query(`DELETE FROM collection_plants WHERE id = ?`, [D.id]);
+
+        // Now move S to destination
+        await conn.query(
+          `UPDATE collection_plants SET collection_id = ? WHERE id = ?`,
+          [toCollectionId, S.id]
+        );
+      } else {
+        // 4b) No destination duplicate — just move S in place
+        await conn.query(
+          `UPDATE collection_plants SET collection_id = ? WHERE id = ?`,
+          [toCollectionId, S.id]
+        );
+      }
+
+      await conn.commit();
+
+      res.status(200).json({
+        success: true,
+        message: "Plant moved successfully",
+        // IMPORTANT: this is the same collection_plants.id as the original,
+        // so it won't change as we move it back and forth.
+        collectionPlantId: S.id,
+        plantId: S.plant_id, // global plant.id for reference
+        newCollectionId: Number(toCollectionId),
+      });
+    } catch (err) {
+      if (conn) await conn.rollback();
+      console.error("Error moving plant:", err);
+      res.status(500).json({ error: "Error occurred while moving plant" });
+    } finally {
+      if (conn) conn.release();
+    }
+  }
+);
 
 module.exports = router;

@@ -9,6 +9,7 @@ import { NewsComponent } from '../news/news.component';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalService } from '../modal.service';
 import { AuthService } from '../auth.service';
+import { CollectionService } from '../collection.service';
 
 @Component({
   selector: 'app-home',
@@ -21,7 +22,7 @@ export class HomeComponent {
   listName = new FormControl('');
   isFormVisible = false;
   collectionUrl = `${environment.apiUrl}/collection`;
-  countUrl =   `${environment.plantCountUrl}/total-plants`;
+  countUrl = `${environment.plantCountUrl}/total-plants`;
 
   @ViewChild('collectionInput') collectionInput!: ElementRef;
   isNewsModalVisible: boolean = false;
@@ -37,7 +38,8 @@ export class HomeComponent {
     public modalService: ModalService,
     private newsService: NewsService,
     private authService: AuthService,
-    private plantService: PlantService
+    private plantService: PlantService,
+    private collectionService: CollectionService
   ) {}
 
   toggleForm() {
@@ -122,27 +124,38 @@ export class HomeComponent {
     this.router.navigate(['/collection', collectionId]);
   }
 
-  getCollection() {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      console.error('No token found');
-      return;
-    }
+  // getCollection() {
+  //   const token = localStorage.getItem('authToken');
+  //   if (!token) {
+  //     console.error('No token found');
+  //     return;
+  //   }
 
-    this.http
-      .get<any[]>(this.collectionUrl, {
-        headers: new HttpHeaders({
-          Authorization: `Bearer ${token}`,
-        }),
-      })
-      .subscribe({
-        next: (response: any[]) => {
-          this.collections = response;
-        },
-        error: (error) => {
-          console.error('Error fetching collections:', error);
-        },
-      });
+  //   this.http
+  //     .get<any[]>(this.collectionUrl, {
+  //       headers: new HttpHeaders({
+  //         Authorization: `Bearer ${token}`,
+  //       }),
+  //     })
+  //     .subscribe({
+  //       next: (response: any[]) => {
+  //         this.collections = response;
+  //       },
+  //       error: (error) => {
+  //         console.error('Error fetching collections:', error);
+  //       },
+  //     });
+  // }
+
+  getCollection() {
+    this.collectionService.getCollections().subscribe({
+      next: (response) => {
+        this.collections = response;
+      },
+      error: (error) => {
+        console.error('Error fetching collections:', error);
+      },
+    });
   }
 
   ngAfterViewInit(): void {
