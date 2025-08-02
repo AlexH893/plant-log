@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, Subject, throwError } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, Subject, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { environment } from 'src/environments/environment'; // Generic import
 
@@ -8,6 +8,10 @@ import { environment } from 'src/environments/environment'; // Generic import
   providedIn: 'root',
 })
 export class CollectionService {
+  collectionUrl = `${environment.apiUrl}/collection`;
+
+  private collectionsSubject = new BehaviorSubject<any[]>([]);
+  collections$ = this.collectionsSubject.asObservable();
   constructor(private http: HttpClient) {}
 
   private refreshCollection = new Subject<void>();
@@ -46,6 +50,32 @@ export class CollectionService {
   }
 
   getCollectionById(collectionId: number): Observable<any> {
-    return this.http.get<any>(`${environment.apiUrl}/collection/${collectionId}`);
+    return this.http.get<any>(
+      `${environment.apiUrl}/collection/${collectionId}`
+    );
   }
+
+
+  getCollections(): Observable<any[]> {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      console.error('No token found');
+      return new Observable((observer) => {
+        observer.error('No token found');
+      });
+    }
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
+
+    return this.http.get<any[]>(this.collectionUrl, { headers });
+  }
+
+  movePlant(fromCollectionId: number, plantInstanceId: number, toCollectionId: number){
+  return this.http.put<{ success: boolean, newCollectionPlantId: number }>(
+    `${environment.apiUrl}/collection/${fromCollectionId}/plant/${plantInstanceId}/move/${toCollectionId}`,
+    {}
+  );
+}
 }
