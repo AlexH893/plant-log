@@ -82,10 +82,12 @@ export class EditPlantComponent implements OnInit {
     return !!trimmed && trimmed !== String(current).trim();
   }
 
-  private hasLastWateredChange(formattedDate?: string): boolean {
-    if (!formattedDate) return false;
-
-    return true;
+  private hasLastWateredChange(): boolean {
+    if (!this.lastWatered && !this.selectedPlant.last_watered) return false;
+    if (!this.lastWatered || !this.selectedPlant.last_watered) return true;
+    const newTime = new Date(this.lastWatered).getTime();
+    const oldTime = new Date(this.selectedPlant.last_watered).getTime();
+    return newTime !== oldTime;
   }
 
   saveChanges(): void {
@@ -112,13 +114,19 @@ export class EditPlantComponent implements OnInit {
     }
 
     // 2. last_watered
-    if (this.hasLastWateredChange(formattedDate)) {
+    if (this.hasLastWateredChange()) {
+      formattedDate = new Date(this.lastWatered!)
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
       ops.push(
         this.http.put(
           `${environment.apiUrl}/collection/${collectionId}/plant/${plantInstanceId}/last-watered`,
           { lastWatered: formattedDate }
         )
       );
+      updateData.last_watered = formattedDate;
+      successMessage += 'Plant last watered date updated successfully! ';
     }
 
     // 3. Check for collection change
