@@ -161,9 +161,7 @@ export class CollectionComponent implements OnInit {
           plant.times_watered = (plant.times_watered || 0) + 1;
         }
       },
-      (error) => {
-        console.error('Error watering plant:', error);
-      }
+      (error) => this.handleApiError(error, `Watering ${plant.common_name}`)
     );
   }
 
@@ -193,9 +191,7 @@ export class CollectionComponent implements OnInit {
           plant.times_fertilized = (plant.times_fertilized || 0) + 1;
         }
       },
-      (error) => {
-        console.error('Error fertilizing plant:', error);
-      }
+      (error) => this.handleApiError(error, `Watering ${plant.common_name}`)
     );
   }
 
@@ -298,9 +294,7 @@ export class CollectionComponent implements OnInit {
         (data) => {
           this.collection = data;
         },
-        (error) => {
-          console.error('Error fetching collection details:', error);
-        }
+        (error) => this.handleApiError(error, 'Fetching collection details')
       );
   }
   // Method to load plants from the service
@@ -322,9 +316,7 @@ export class CollectionComponent implements OnInit {
             console.error('Failed to fetch plants');
           }
         },
-        (error) => {
-          console.error('Error fetching plants:', error);
-        }
+        (error) => this.handleApiError(error, 'Loading plants')
       );
   }
 
@@ -437,5 +429,30 @@ export class CollectionComponent implements OnInit {
       today.getMonth() === lastDate.getMonth() &&
       today.getDate() === lastDate.getDate()
     );
+  }
+
+  private handleApiError(error: any, action: string) {
+    let message = '';
+
+    switch (error.status) {
+      case 0: // network or CORS error
+        message = 'Network error: please refresh & try again';
+        break;
+      case 404:
+        message = `Not found: ${action}`;
+        break;
+      case 502:
+        message = `Server unavailable (502). Please refresh & try again`;
+        break;
+      case 500:
+        message = 'Internal server error';
+        break;
+      default:
+        message = `Unexpected error (${error.status || 'unknown'}).`;
+        break;
+    }
+
+    console.error(`${action} failed:`, error);
+    this.snackBar.open(message, 'Close', { duration: 4000 });
   }
 }
