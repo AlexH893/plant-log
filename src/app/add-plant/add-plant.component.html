@@ -1,9 +1,11 @@
 <button class="close-btn" (click)="closeModal()">X</button>
-<h2>Add Plants to Collection</h2>
-
-
-<h2 class="collection-name">{{ collection?.name }}</h2>
+<h2 class="addHeader">Add Plants to {{ collection?.name }}</h2>
+<h3 class="instructions">
+  Search or add your own plants, then click the + button.
+  Finish by clicking Add.
+</h3>
 <mat-divider></mat-divider>
+
 <form class="example-form">
   <mat-form-field>
     <input
@@ -21,52 +23,37 @@
       </mat-option>
     </mat-autocomplete>
   </mat-form-field>
-  <!-- Custom plant input -->
+
   <div class="input-with-button">
     <mat-form-field>
       <input
-        class="custom-input"
         matInput
-        placeholder="Or add your own"
+        placeholder="Add your own"
         [formControl]="customPlantInput"
         (keyup.enter)="addCustomPlant()"
       />
     </mat-form-field>
-    <button mat-icon-button matSuffix (click)="addCustomPlant()">
+    <button
+      class="addPlant"
+      mat-icon-button
+      matSuffix
+      (click)="addCustomPlant()"
+    >
       <mat-icon>add</mat-icon>
     </button>
   </div>
-  <div *ngIf="selectedPlants.length > 0">
-    <h3>Selected Plants to be added</h3>
-    <div *ngFor="let plant of selectedPlants">
-      {{ plant.scientific_name }} - Quantity: {{ plant.quantity }}
-      <button mat-button (click)="adjustQuantity(plant.scientific_name, 1)">
-        +
-      </button>
-      <button mat-button (click)="adjustQuantity(plant.scientific_name, -1)">
-        -
-      </button>
-    </div>
-  </div>
-  <div class="btns">
-    <button
-      class="plant-btn"
-      mat-raised-button
-      (click)="addPlants(collectionId)"
-    >
-      Add
-      <span class="material-icons"> add </span>
-    </button>
 
-    <button
-      class="clear"
-      mat-raised-button
-      color="warn"
-      (click)="clearSelections()"
-    >
+  <div *ngIf="selectedPlants.length > 0" class="selected-plants">
+    <h3>Selected Plants</h3>
+    <div *ngFor="let plant of selectedPlants">{{ plant.scientific_name }}</div>
+  </div>
+
+  <div class="btns">
+    <button class="plant-btn" (click)="addPlants(collectionId)">
+      Add
+    </button>
+    <button class="clear" (click)="clearSelections()">
       Clear
-      <span class="material-icons"> clear </span>
     </button>
   </div>
 </form>
-<br /><br />

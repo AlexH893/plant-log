@@ -32,6 +32,7 @@ import { NewsComponent } from './news/news.component';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core'; // Native date functionality
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatSortModule } from '@angular/material/sort';
 @NgModule({
   declarations: [
     AppComponent,
@@ -68,6 +69,7 @@ import { MatExpansionModule } from '@angular/material/expansion';
     MatNativeDateModule,
     MatExpansionModule,
     MatSlideToggleModule,
+    MatSortModule,
   ],
   providers: [
     {

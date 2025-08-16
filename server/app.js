@@ -9,20 +9,20 @@ const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const path = require("path");
 // Prod
-const db = mysql.createPool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
-});
+// const db = mysql.createPool({
+//   host: process.env.DB_HOST,
+//   user: process.env.DB_USER,
+//   password: process.env.DB_PASSWORD,
+//   database: process.env.DB_NAME,
+// });
 
 // Dev
-// const db = mysql.createPool({
-//   host: "127.0.0.1",
-//   user: "root",
-//   password: "newpassword",
-//   database: "plants",
-// });
+const db = mysql.createPool({
+  host: "127.0.0.1",
+  user: "root",
+  password: "newpassword",
+  database: "plants",
+});
 
 // App configurations
 app.use(bodyParser.json());
