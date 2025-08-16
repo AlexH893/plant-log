@@ -28,7 +28,7 @@
 
   <!-- Table Container -->
   <div class="table-container">
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
       <!-- Name Column -->
       <ng-container matColumnDef="name">
         <th
@@ -46,7 +46,7 @@
 
       <!-- Last Watered Column -->
       <ng-container matColumnDef="last_watered">
-        <th mat-header-cell *matHeaderCellDef>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>
           <!-- Conditionally dzisplay column header based on fertilize flag -->
           {{ showFertilizeFlag ? "Last Watered" : "Last Watered" }}
           <!-- Num of days ago goes here -->
