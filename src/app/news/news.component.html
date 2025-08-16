@@ -1,8 +1,6 @@
 <div *ngIf="isVisible" class="news-container">
   <h1>Updates</h1>
 
-  <!-- List of news items -->
-
   <div
     class="news-item"
     *ngFor="let news of newsList"
@@ -17,9 +15,11 @@
 <!-- News Modal -->
 <div *ngIf="selectedNews" class="news-modal">
   <div class="modal-content">
+    <button class="close-news-btn" (click)="closeNewsInfo()">&times;</button>
     <h2>{{ selectedNews.title }}</h2>
     <p>{{ selectedNews.content }}</p>
-    <span class="close-news-btn" (click)="closeNewsInfo()">&times;</span>
   </div>
 </div>
+
+<!-- Close the whole news component -->
 <button class="close-btn" (click)="closeNewsModal()">&times;</button>
