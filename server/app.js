@@ -8,7 +8,7 @@ const axios = require("axios");
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const path = require("path");
-Prod
+// Prod
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
